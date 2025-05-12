@@ -19,7 +19,7 @@
             justify-content: center;
             align-items: center;
             padding: 20px;
-            overflow: auto;
+            overflow: hidden;
             position: relative;
         }
 
@@ -340,7 +340,7 @@
         .audio-control {
             position: fixed;
             bottom: 20px;
-            right: auto;
+            right: 20px;
             background: white;
             padding: 10px;
             border-radius: 50%;
@@ -528,11 +528,10 @@
             left: 0; top: 0; width: 100vw; height: 100vh;
             justify-content: center;
             align-items: center;
-        }
-        .photo-modal-mask {
-            position: absolute;
-            left: 0; top: 0; width: 100vw; height: 100vh;
             background: rgba(0,0,0,0.7);
+        }
+        .photo-modal.show {
+            display: flex !important;
         }
         .photo-modal-img {
             position: relative;
@@ -541,6 +540,7 @@
             border-radius: 20px;
             box-shadow: 0 8px 32px 0 rgba(0,0,0,0.5);
             animation: modalZoomIn 0.3s;
+            background: #fff;
         }
         @keyframes modalZoomIn {
             from { transform: scale(0.5); opacity: 0; }
@@ -583,7 +583,7 @@
             40% { transform: translateY(0);}
         }
 
-              @media (max-width: 600px) {
+        @media (max-width: 600px) {
             .contact-button {
                 position: fixed;
                 left: 50%;
@@ -594,6 +594,8 @@
                 z-index: 1001;
                 font-size: 18px;
                 box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+                margin: 0;
+                right: auto;
             }
             .profile-card {
                 padding-bottom: 90px;
@@ -825,15 +827,14 @@
 
         // 头像点击放大
         document.getElementById('profilePhoto').onclick = function() {
-            // 动态获取头像src，保证弹窗图片和头像一致
             var imgSrc = document.querySelector('#profilePhoto img').src;
             document.getElementById('photoModalImg').src = imgSrc;
-            document.getElementById('photoModal').style.display = 'flex';
+            document.getElementById('photoModal').classList.add('show');
         };
         document.getElementById('photoModalMask').onclick = closePhotoModal;
         document.getElementById('photoModalImg').onclick = closePhotoModal;
         function closePhotoModal() {
-            document.getElementById('photoModal').style.display = 'none';
+            document.getElementById('photoModal').classList.remove('show');
         }
     </script>
 </body>
