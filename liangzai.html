@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>相亲介绍</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #000;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            animation: fadeOut 3s ease-in-out forwards;
+            overflow: hidden;
+        }
+
+        .splash-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .splash-text {
+            color: #fff;
+            font-size: 48px;
+            font-weight: bold;
+            text-align: center;
+            opacity: 0;
+            position: relative;
+            animation: splashTextFadeIn 1.2s ease-out 3s forwards;
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
+            z-index: 2;
+        }
+
+        .horse {
+            position: absolute;
+            width: 350px;
+            height: 350px;
+            left: 50%;
+            bottom: 10%;
+            transform: translateX(-50%);
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .horse-video {
+            width: 100%;
+            height: auto;
+            border-radius: 18px;
+            box-shadow: 0 8px 32px 0 rgba(0,0,0,0.25);
+            opacity: 0;
+            transform: translateX(-60vw) scale(0.3) translateY(0);
+            animation: horseLeftToCenter 3.5s cubic-bezier(.7,.2,.2,1) forwards, horseGallop 0.25s linear infinite 3s;
+            filter: drop-shadow(0 8px 32px rgba(0,0,0,0.18));
+            background: #000;
+            object-fit: cover;
+            mask-image: radial-gradient(circle at 50% 60%, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%);
+            -webkit-mask-image: radial-gradient(circle at 50% 60%, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%);
+        }
+        .horse-wind {
+            position: absolute;
+            left: 10%;
+            bottom: 40%;
+            width: 80px;
+            height: 30px;
+            background: linear-gradient(90deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 100%);
+            opacity: 0.5;
+            filter: blur(2px);
+            animation: windMove 0.5s linear infinite;
+            z-index: 0;
+        }
+        .horse-dust-particle {
+            position: absolute;
+            background: radial-gradient(ellipse at center, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 80%);
+            animation: dustParticleMove 0.8s linear forwards;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+        }
+
+        .star {
+            position: absolute;
+            background: #fff;
+            border-radius: 50%;
+            animation: twinkle var(--duration) infinite;
+            opacity: 0;
+        }
+
+        .shooting-star {
+            position: absolute;
+            width: 100px;
+            height: 2px;
+            background: linear-gradient(90deg, rgba(255,255,255,0) 0%, #fff 50%, rgba(255,255,255,0) 100%);
+            animation: shooting var(--duration) infinite;
+            opacity: 0;
+        }
+
+        .profile-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            max-width: 600px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: scale(0.8);
+            animation: cardAppear 1s ease-out 2s forwards;
+        }
+
+        .profile-header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .profile-photo {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            background: #f0f0f0;
+            position: relative;
+            overflow: hidden;
+            animation: float 3s ease-in-out infinite;
+            box-shadow: 0 0 20px rgba(255,107,107,0.3);
+        }
+
+        .profile-photo::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent,
+                rgba(255,255,255,0.3),
+                transparent
+            );
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+
+        .profile-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .profile-photo:hover img {
+            transform: scale(1.1);
+        }
+
+        .profile-name {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+            animation: slideIn 1s ease-out;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .profile-tag {
+            display: inline-block;
+            padding: 5px 15px;
+            background: #ff6b6b;
+            color: white;
+            border-radius: 20px;
+            font-size: 16px;
+            margin: 5px;
+            animation: popIn 0.5s ease-out;
+            transition: transform 0.3s ease;
+        }
+
+        .profile-tag:hover {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .profile-info {
+            margin: 30px 0;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .info-item {
+            margin: 15px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .info-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255,255,255,0.2),
+                transparent
+            );
+            transition: 0.5s;
+        }
+
+        .info-item:hover {
+            transform: translateX(10px);
+            background: #e9ecef;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .info-item:hover::before {
+            left: 100%;
+        }
+
+        .highlight {
+            color: #ff6b6b;
+            font-weight: bold;
+            position: relative;
+            display: inline-block;
+        }
+
+        .highlight::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #ff6b6b;
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .highlight:hover::after {
+            transform: scaleX(1);
+        }
+
+        .contact-button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .contact-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255,255,255,0.2),
+                transparent
+            );
+            transition: 0.5s;
+        }
+
+        .contact-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(76,175,80,0.3);
+        }
+
+        .contact-button:hover::before {
+            left: 100%;
+        }
+
+        .floating-hearts {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .heart {
+            position: absolute;
+            font-size: 20px;
+            color: #ff6b6b;
+            animation: floatHeart 4s ease-in-out infinite;
+            opacity: 0;
+            filter: drop-shadow(0 0 5px rgba(255,107,107,0.5));
+        }
+
+        .audio-control {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 10px;
+            border-radius: 50%;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            cursor: pointer;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        .audio-control:hover {
+            transform: scale(1.1);
+        }
+
+        @keyframes fadeOut {
+            from { 
+                opacity: 1;
+                background: #000;
+            }
+            to { 
+                opacity: 0;
+                background: transparent;
+                visibility: hidden;
+            }
+        }
+
+        @keyframes flyIn {
+            0% {
+                opacity: 0;
+                transform: translateX(-100vw) scale(0.5);
+            }
+            50% {
+                opacity: 1;
+                transform: translateX(0) scale(1.2);
+            }
+            70% {
+                transform: translateX(0) scale(1);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+        }
+
+        @keyframes lightBeam {
+            0% {
+                left: -100%;
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                left: 100%;
+                opacity: 0;
+            }
+        }
+
+        @keyframes cardAppear {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes floatHeart {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+        }
+
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            background: rgba(255,107,107,0.5);
+            border-radius: 50%;
+            animation: particleFloat 20s infinite linear;
+        }
+
+        @keyframes particleFloat {
+            0% { transform: translateY(0) translateX(0); }
+            25% { transform: translateY(-100px) translateX(100px); }
+            50% { transform: translateY(-200px) translateX(0); }
+            75% { transform: translateY(-100px) translateX(-100px); }
+            100% { transform: translateY(0) translateX(0); }
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes shooting {
+            0% {
+                transform: translateX(-100%) translateY(0) rotate(45deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            20% {
+                transform: translateX(100%) translateY(100px) rotate(45deg);
+                opacity: 0;
+            }
+            100% {
+                transform: translateX(100%) translateY(100px) rotate(45deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes horseLeftToCenter {
+            0%   { opacity: 0; transform: translateX(-60vw) scale(0.3) translateY(0);}
+            10%  { opacity: 1; }
+            60%  { transform: translateX(-10vw) scale(1.2) translateY(-10px);}
+            80%  { transform: translateX(0vw) scale(1.8) translateY(0);}
+            90%  { opacity: 1; }
+            100% { opacity: 0; transform: translateX(0vw) scale(1.8) translateY(0);}
+        }
+
+        @keyframes horseGallop {
+            0% { transform: translateY(0) scale(1.1) rotate(-2deg);}
+            25% { transform: translateY(-8px) scale(1.1) rotate(2deg);}
+            50% { transform: translateY(0) scale(1.1) rotate(-2deg);}
+            75% { transform: translateY(8px) scale(1.1) rotate(2deg);}
+            100% { transform: translateY(0) scale(1.1) rotate(-2deg);}
+        }
+
+        @keyframes windMove {
+            0% { opacity: 0.5; left: 10%;}
+            100% { opacity: 0; left: -30%;}
+        }
+
+        @keyframes dustParticleMove {
+            0% { opacity: 0.7; transform: scale(0.5);}
+            100% { opacity: 0; transform: translateY(20px) scale(1.5);}
+        }
+
+        @keyframes splashTextFadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+
+        .photo-modal {
+            display: none;
+            position: fixed;
+            z-index: 99999;
+            left: 0; top: 0; width: 100vw; height: 100vh;
+            justify-content: center;
+            align-items: center;
+        }
+        .photo-modal-mask {
+            position: absolute;
+            left: 0; top: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.7);
+        }
+        .photo-modal-img {
+            position: relative;
+            max-width: 90vw;
+            max-height: 80vh;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0,0,0,0.5);
+            animation: modalZoomIn 0.3s;
+        }
+        @keyframes modalZoomIn {
+            from { transform: scale(0.5); opacity: 0; }
+            to   { transform: scale(1); opacity: 1; }
+        }
+
+        .info-row {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+            align-items: center;
+            font-size: 18px;
+            justify-content: flex-start;
+        }
+        .info-row > span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            position: relative;
+        }
+        .height-effect {
+            margin-left: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            background: linear-gradient(90deg, #ff6b6b, #07C160, #3b82f6, #ff6b6b);
+            background-size: 200% 100%;
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: heightEffectAnim 2s infinite linear, heightEffectJump 1.2s infinite;
+            padding: 0 4px;
+        }
+        @keyframes heightEffectAnim {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+        @keyframes heightEffectJump {
+            0%, 100% { transform: translateY(0);}
+            20% { transform: translateY(-8px);}
+            40% { transform: translateY(0);}
+        }
+
+        @media (max-width: 600px) {
+            .contact-button {
+                position: fixed;
+                left: 50%;
+                bottom: 20px;
+                transform: translateX(-50%);
+                width: 90vw;
+                max-width: 400px;
+                z-index: 1001;
+                font-size: 18px;
+                box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            }
+            .profile-card {
+                padding-bottom: 90px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars"></div>
+    <div class="splash-screen">
+        <div class="splash-container">
+            <div class="horse">
+                <video class="horse-video" src="./baima.mp4" autoplay loop muted playsinline></video>
+                <div class="horse-wind"></div>
+            </div>
+            <div class="splash-text">寻找真爱...</div>
+        </div>
+    </div>
+
+    <div class="particles"></div>
+
+    <div class="profile-card">
+        <div class="profile-header">
+            <div class="profile-photo" id="profilePhoto">
+                <img src="./liangzai.jpg" alt="头像">
+            </div>
+            <div class="photo-modal" id="photoModal">
+                <div class="photo-modal-mask" id="photoModalMask"></div>
+                <img class="photo-modal-img" id="photoModalImg" src="./liangzai.jpg" alt="大头像">
+            </div>
+            <h1 class="profile-name">亮仔</h1>
+            <div class="profile-tags">
+                <span class="profile-tag">资料员</span>
+                <span class="profile-tag">渣男</span>
+                <span class="profile-tag">吃货</span>
+            </div>
+        </div>
+
+        <div class="profile-info">
+            <div class="info-item info-row">
+                <span>👤 性别：<span class="highlight">男</span></span>
+                <span>🎂 年龄：<span class="highlight">28</span></span>
+                <span>📏 身高：<span class="highlight">178cm</span><span class="height-effect">我也想长两米高</span></span>
+                <span>⚖️ 体重：<span class="highlight">68kg</span></span>
+            </div>
+            <div class="info-item">
+                <p>👨‍💻 职业：<span class="highlight">资深资料员</span></p>
+                <p>💼 工作：每天和领导谈恋爱，偶尔和同事吵架</p>
+            </div>
+            <div class="info-item">
+                <p>🏠 住房：<span class="highlight">有房</span>（虽然是在眉山）</p>
+                <p>🚗 座驾：<span class="highlight">有车</span>（一辆国外产的本田）</p>
+            </div>
+            <div class="info-item">
+                <p>🎮 爱好：</p>
+                <p>- 打游戏（但经常被队友喷）</p>
+                <p>- 看叮当猫（小屁孩渣男）</p>
+                <p>- 吃美食（但不会做饭）</p>
+            </div>
+            <div class="info-item">
+                <p>💝 择偶要求：</p>
+                <p>- 能接受我偶尔加班</p>
+                <p>- 不嫌弃我打游戏</p>
+                <p>- 最好会做饭（因为我不会）</p>
+            </div>
+        </div>
+
+        <button class="contact-button" onclick="showContact()">联系我</button>
+        <div class="floating-hearts"></div>
+    </div>
+
+    <div class="audio-control" onclick="toggleAudio()">🔊</div>
+
+    <audio id="bgMusic" loop>
+        <source src="https://music.163.com/song/media/outer/url?id=1824045033.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- 马蹄声效 -->
+    <audio id="horseHoof" src="https://cdn.pixabay.com/audio/2022/07/26/audio_124bfae7e2.mp3" preload="auto"></audio>
+
+    <script>
+        // 创建星空效果
+        function createStars() {
+            const starsContainer = document.querySelector('.stars');
+            const starCount = 200;
+            const shootingStarCount = 5;
+
+            // 创建普通星星
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.width = Math.random() * 3 + 'px';
+                star.style.height = star.style.width;
+                star.style.setProperty('--duration', Math.random() * 3 + 2 + 's');
+                star.style.animationDelay = Math.random() * 5 + 's';
+                starsContainer.appendChild(star);
+            }
+
+            // 创建流星
+            for (let i = 0; i < shootingStarCount; i++) {
+                const shootingStar = document.createElement('div');
+                shootingStar.className = 'shooting-star';
+                shootingStar.style.left = Math.random() * 100 + '%';
+                shootingStar.style.top = Math.random() * 50 + '%';
+                shootingStar.style.setProperty('--duration', Math.random() * 10 + 10 + 's');
+                shootingStar.style.animationDelay = Math.random() * 10 + 's';
+                starsContainer.appendChild(shootingStar);
+            }
+        }
+
+        // 创建粒子效果
+        function createParticles() {
+            const container = document.querySelector('.particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                container.appendChild(particle);
+            }
+        }
+
+        // 创建漂浮爱心
+        function createHearts() {
+            const container = document.querySelector('.floating-hearts');
+            const heart = document.createElement('div');
+            heart.className = 'heart';
+            heart.innerHTML = '❤️';
+            heart.style.left = Math.random() * 100 + '%';
+            container.appendChild(heart);
+            
+            setTimeout(() => {
+                heart.remove();
+            }, 4000);
+        }
+
+        // 定期创建爱心
+        setInterval(createHearts, 300);
+
+        // 音频控制
+        const bgMusic = document.getElementById('bgMusic');
+        const audioControl = document.querySelector('.audio-control');
+        let isPlaying = false;
+
+        function toggleAudio() {
+            if (isPlaying) {
+                bgMusic.pause();
+                audioControl.textContent = '🔈';
+            } else {
+                bgMusic.play();
+                audioControl.textContent = '🔊';
+            }
+            isPlaying = !isPlaying;
+        }
+
+        // 联系按钮点击效果
+        function showContact() {
+            const contactInfo = [
+                '微信：coder_xiaoming',
+                'QQ：123456789',
+                '邮箱：xiaoming@example.com'
+            ];
+            
+            alert(contactInfo.join('\n'));
+        }
+
+        // 添加点击音效
+        document.querySelector('.contact-button').addEventListener('click', () => {
+            const audio = new Audio('https://www.soundjay.com/buttons/sounds/button-09.mp3');
+            audio.play();
+        });
+
+        // 马蹄声效控制
+        const horseHoof = document.getElementById('horseHoof');
+        function playHoof() {
+            horseHoof.currentTime = 0;
+            horseHoof.play();
+        }
+        let hoofTimer = null;
+        function startHoofSound() {
+            if (hoofTimer) return;
+            playHoof();
+            hoofTimer = setInterval(playHoof, 800);
+        }
+        function stopHoofSound() {
+            if (hoofTimer) clearInterval(hoofTimer);
+            hoofTimer = null;
+            horseHoof.pause();
+        }
+
+        // 页面加载完成后初始化
+        window.addEventListener('load', () => {
+            createStars();
+            createParticles();
+            // 动画开始时播放马蹄声，3.5秒后停止
+            startHoofSound();
+            setTimeout(stopHoofSound, 3500);
+            // 3.5秒后彻底隐藏视频框
+            setTimeout(() => {
+                const horseVideo = document.querySelector('.horse-video');
+                if (horseVideo) horseVideo.style.display = 'none';
+            }, 3500);
+            // 由于浏览器策略，需要用户交互后才能播放音频
+            document.body.addEventListener('click', () => {
+                if (!isPlaying) {
+                    toggleAudio();
+                }
+            }, { once: true });
+        });
+
+        // 动态生成尘土粒子
+        function createHorseDust() {
+            const horse = document.querySelector('.horse');
+            if (!horse) return;
+            const dust = document.createElement('div');
+            dust.className = 'horse-dust-particle';
+            dust.style.left = (100 + Math.random() * 40) + 'px';
+            dust.style.bottom = '0px';
+            dust.style.opacity = 0.5 + Math.random() * 0.3;
+            dust.style.width = 10 + Math.random() * 10 + 'px';
+            dust.style.height = 5 + Math.random() * 5 + 'px';
+            horse.appendChild(dust);
+            setTimeout(() => { dust.remove(); }, 800);
+        }
+        setInterval(createHorseDust, 120);
+
+        // 头像点击放大
+        document.getElementById('profilePhoto').onclick = function() {
+            // 动态获取头像src，保证弹窗图片和头像一致
+            var imgSrc = document.querySelector('#profilePhoto img').src;
+            document.getElementById('photoModalImg').src = imgSrc;
+            document.getElementById('photoModal').style.display = 'flex';
+        };
+        document.getElementById('photoModalMask').onclick = closePhotoModal;
+        document.getElementById('photoModalImg').onclick = closePhotoModal;
+        function closePhotoModal() {
+            document.getElementById('photoModal').style.display = 'none';
+        }
+    </script>
+</body>
+</html> 
