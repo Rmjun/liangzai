@@ -282,7 +282,9 @@
 
         .contact-button {
             display: block;
+            margin: 30px auto 0 auto;
             width: 100%;
+            max-width: 400px;
             padding: 15px;
             background: linear-gradient(45deg, #4CAF50, #45a049);
             color: white;
@@ -294,6 +296,8 @@
             animation: pulse 2s infinite;
             position: relative;
             overflow: hidden;
+            left: 50%;
+            transform: translateX(-50%);
         }
 
         .contact-button::before {
