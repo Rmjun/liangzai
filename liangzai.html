@@ -619,7 +619,7 @@
     <div class="splash-screen">
         <div class="splash-container">
             <div class="horse">
-                <video class="horse-video" src="./baima.mp4" autoplay loop muted playsinline></video>
+                <video class="horse-video" src="F:\我的文件\cursor\bm.mp4" autoplay loop playsinline></video>
                 <div class="horse-wind"></div>
             </div>
             <div class="splash-text">寻找真爱...</div>
@@ -686,6 +686,18 @@
 
     <!-- 马蹄声效 -->
     <audio id="horseHoof" src="https://cdn.pixabay.com/audio/2022/07/26/audio_124bfae7e2.mp3" preload="auto"></audio>
+
+    <div id="contactModal" style="display:none; position:fixed; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.4); z-index:2000; justify-content:center; align-items:center;">
+        <div style="background:#fff; border-radius:12px; padding:24px 18px; min-width:260px; max-width:90vw; box-shadow:0 4px 24px rgba(0,0,0,0.15); text-align:left; position:relative;">
+            <div id="contactText" style="font-size:16px; line-height:2; word-break:break-all; user-select:text;">
+                微信：coder_xiaoming<br>
+                QQ：123456789<br>
+                邮箱：xiaoming@example.com
+            </div>
+            <button onclick="copyContact()" style="margin-top:16px; width:100%; background:#4CAF50; color:#fff; border:none; border-radius:6px; padding:8px 0; font-size:16px; cursor:pointer;">一键复制全部</button>
+            <button onclick="closeContactModal()" style="margin-top:8px; width:100%; background:#eee; color:#333; border:none; border-radius:6px; padding:8px 0; font-size:16px; cursor:pointer;">关闭</button>
+        </div>
+    </div>
 
     <script>
         // 创建星空效果
@@ -767,13 +779,16 @@
 
         // 联系按钮点击效果
         function showContact() {
-            const contactInfo = [
-                '微信：coder_xiaoming',
-                'QQ：123456789',
-                '邮箱：xiaoming@example.com'
-            ];
-            
-            alert(contactInfo.join('\n'));
+            document.getElementById('contactModal').style.display = 'flex';
+        }
+        function closeContactModal() {
+            document.getElementById('contactModal').style.display = 'none';
+        }
+        function copyContact() {
+            const text = document.getElementById('contactText').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('联系方式已复制到剪贴板！');
+            });
         }
 
         // 添加点击音效
@@ -784,6 +799,7 @@
 
         // 马蹄声效控制
         const horseHoof = document.getElementById('horseHoof');
+        horseHoof.volume = 1.0;
         function playHoof() {
             horseHoof.currentTime = 0;
             horseHoof.play();
