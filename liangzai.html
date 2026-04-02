@@ -14,6 +14,7 @@
             --fg: #1a1a1a;
             --muted: #6b6b6b;
             --accent: #e85d4c;
+            --accent-dark: #c94a3a;
             --accent-light: #fef2f0;
             --card: #fafafa;
             --border: #e8e8e8;
@@ -27,6 +28,80 @@
             color: var(--fg);
             line-height: 1.6;
             overflow-x: hidden;
+        }
+
+        /* ====== 涟漪效果基础 ====== */
+        .ripple-container {
+            position: relative;
+            overflow: hidden;
+        }
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.6);
+            transform: scale(0);
+            animation: rippleAnim 0.6s ease-out forwards;
+            pointer-events: none;
+        }
+        @keyframes rippleAnim {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        /* 深色涟漪 */
+        .ripple-dark {
+            background: rgba(0, 0, 0, 0.15);
+        }
+
+        /* ====== 按下缩放效果 ====== */
+        .press-scale {
+            transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), 
+                        box-shadow 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .press-scale:active {
+            transform: scale(0.96) !important;
+        }
+
+        /* ====== 弹性回弹效果 ====== */
+        .press-bounce {
+            transition: transform 0.1s ease;
+        }
+        .press-bounce:active {
+            transform: scale(0.92);
+        }
+        .press-bounce:not(:active) {
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* ====== 发光脉冲效果 ====== */
+        .glow-pulse {
+            animation: glowPulse 0.4s ease-out;
+        }
+        @keyframes glowPulse {
+            0% { box-shadow: 0 0 0 0 rgba(232, 93, 76, 0.4); }
+            100% { box-shadow: 0 0 0 20px rgba(232, 93, 76, 0); }
+        }
+
+        /* ====== 粒子爆炸效果 ====== */
+        .particle {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+        @keyframes particleExplode {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--tx), var(--ty)) scale(0);
+                opacity: 0;
+            }
         }
 
         /* ====== 开屏 ====== */
@@ -100,12 +175,17 @@
             border-radius: 20px;
             overflow: hidden;
             cursor: pointer;
-            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), 
+                        box-shadow 0.4s ease;
             box-shadow: 0 8px 40px rgba(0,0,0,0.08);
         }
         .avatar:hover {
-            transform: translateY(-6px);
+            transform: translateY(-8px) scale(1.02);
             box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+        }
+        .avatar:active {
+            transform: translateY(-4px) scale(0.98);
+            transition: transform 0.1s ease;
         }
         .avatar img {
             width: 100%;
@@ -115,7 +195,27 @@
         }
         .avatar:hover img { transform: scale(1.05); }
 
-        /* 装饰线 */
+        /* 头像点击涟漪 */
+        .avatar-ripple {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            border-radius: 20px;
+            transform: translate(-50%, -50%) scale(0);
+            border: 3px solid var(--accent);
+            opacity: 0;
+            pointer-events: none;
+        }
+        .avatar-ripple.animate {
+            animation: avatarRipple 0.6s ease-out forwards;
+        }
+        @keyframes avatarRipple {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0.8; }
+            100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
+        }
+
         .accent-line {
             width: 40px;
             height: 3px;
@@ -151,18 +251,27 @@
             border-radius: 20px;
             font-size: 12px;
             color: var(--muted);
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
             letter-spacing: 0.5px;
+            cursor: pointer;
+            user-select: none;
         }
         .tag:hover {
             background: var(--fg);
             color: var(--bg);
             border-color: var(--fg);
+            transform: scale(1.05);
+        }
+        .tag:active {
+            transform: scale(0.95);
         }
         .tag.active {
             background: var(--accent);
             color: white;
             border-color: var(--accent);
+        }
+        .tag.active:hover {
+            background: var(--accent-dark);
         }
 
         /* 右侧 */
@@ -213,11 +322,18 @@
             background: var(--card);
             border-radius: 12px;
             padding: 20px 24px;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: pointer;
+            user-select: none;
         }
         .info-item:hover {
             background: var(--accent-light);
-            transform: translateY(-2px);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 30px rgba(232, 93, 76, 0.15);
+        }
+        .info-item:active {
+            transform: translateY(-1px) scale(0.98);
+            transition: all 0.1s ease;
         }
 
         .info-label {
@@ -248,8 +364,18 @@
             gap: 12px;
             font-size: 15px;
             color: var(--fg);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            user-select: none;
         }
         .list li:last-child { border-bottom: none; }
+        .list li:hover {
+            padding-left: 8px;
+            color: var(--accent);
+        }
+        .list li:active {
+            padding-left: 4px;
+        }
         .list li::before {
             content: '';
             width: 6px;
@@ -257,6 +383,13 @@
             background: var(--accent);
             border-radius: 50%;
             flex-shrink: 0;
+            transition: transform 0.3s ease;
+        }
+        .list li:hover::before {
+            transform: scale(1.5);
+        }
+        .list li:active::before {
+            transform: scale(1);
         }
 
         /* 文本块 */
@@ -284,12 +417,19 @@
             font-weight: 500;
             letter-spacing: 1px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
             margin-top: 8px;
+            position: relative;
+            overflow: hidden;
         }
         .cta:hover {
             background: var(--accent);
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(232, 93, 76, 0.3);
+        }
+        .cta:active {
+            transform: translateY(-1px) scale(0.97);
+            transition: all 0.1s ease;
         }
         .cta svg {
             transition: transform 0.3s ease;
@@ -298,13 +438,29 @@
             transform: translateX(4px);
         }
 
+        /* CTA 内部涟漪 */
+        .cta-ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(0);
+            animation: ctaRipple 0.5s ease-out forwards;
+            pointer-events: none;
+        }
+        @keyframes ctaRipple {
+            to {
+                transform: scale(3);
+                opacity: 0;
+            }
+        }
+
         /* 音频 */
         .audio-btn {
             position: fixed;
             bottom: 32px;
             right: 32px;
-            width: 48px;
-            height: 48px;
+            width: 52px;
+            height: 52px;
             border-radius: 50%;
             background: var(--fg);
             color: var(--bg);
@@ -313,14 +469,18 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
-            transition: all 0.3s ease;
+            font-size: 20px;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
             z-index: 100;
             box-shadow: 0 4px 20px rgba(0,0,0,0.15);
         }
         .audio-btn:hover {
-            transform: scale(1.1);
+            transform: scale(1.15) rotate(10deg);
             background: var(--accent);
+        }
+        .audio-btn:active {
+            transform: scale(0.9);
+            transition: transform 0.1s ease;
         }
 
         /* 弹窗 */
@@ -348,10 +508,10 @@
             max-width: 400px;
             width: 90%;
             box-shadow: 0 30px 80px rgba(0,0,0,0.1);
-            animation: modalIn 0.4s ease;
+            animation: modalIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         @keyframes modalIn {
-            from { opacity: 0; transform: scale(0.9) translateY(20px); }
+            from { opacity: 0; transform: scale(0.85) translateY(30px); }
             to { opacity: 1; transform: scale(1) translateY(0); }
         }
 
@@ -363,17 +523,28 @@
             text-align: center;
         }
 
-        .contact-list {
-            margin-bottom: 28px;
-        }
+        .contact-list { margin-bottom: 28px; }
         .contact-item {
             display: flex;
             align-items: center;
             gap: 16px;
             padding: 14px 0;
             border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            margin: 0 -12px;
+            padding-left: 12px;
+            padding-right: 12px;
         }
         .contact-item:last-child { border-bottom: none; }
+        .contact-item:hover {
+            background: var(--accent-light);
+            transform: translateX(4px);
+        }
+        .contact-item:active {
+            transform: scale(0.98);
+        }
         .contact-icon {
             width: 40px;
             height: 40px;
@@ -383,6 +554,10 @@
             align-items: center;
             justify-content: center;
             font-size: 18px;
+            transition: transform 0.3s ease;
+        }
+        .contact-item:hover .contact-icon {
+            transform: rotate(-10deg) scale(1.1);
         }
         .contact-text {
             font-size: 15px;
@@ -399,10 +574,18 @@
             font-size: 14px;
             font-weight: 500;
             cursor: pointer;
-            transition: background 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
             letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
         }
-        .modal-btn:hover { background: var(--accent); }
+        .modal-btn:hover { 
+            background: var(--accent);
+            transform: translateY(-2px);
+        }
+        .modal-btn:active {
+            transform: translateY(0) scale(0.97);
+        }
 
         .modal-close {
             width: 100%;
@@ -420,13 +603,16 @@
             background: var(--card);
             color: var(--fg);
         }
+        .modal-close:active {
+            transform: scale(0.98);
+        }
 
         /* 图片弹窗 */
         .photo-modal {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.9);
+            background: rgba(0,0,0,0.92);
             z-index: 2000;
             align-items: center;
             justify-content: center;
@@ -437,13 +623,16 @@
             max-height: 90vh;
             border-radius: 16px;
             cursor: pointer;
+            animation: photoIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes photoIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
         }
 
         /* 响应式 */
         @media (max-width: 900px) {
-            .page {
-                grid-template-columns: 1fr;
-            }
+            .page { grid-template-columns: 1fr; }
             .sidebar {
                 position: relative;
                 height: auto;
@@ -451,12 +640,8 @@
                 border-right: none;
                 border-bottom: 1px solid var(--border);
             }
-            .content {
-                padding: 48px 24px;
-            }
-            .info-grid {
-                grid-template-columns: 1fr;
-            }
+            .content { padding: 48px 24px; }
+            .info-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -474,18 +659,19 @@
         <!-- 左侧 -->
         <aside class="sidebar">
             <div class="avatar-box">
-                <div class="avatar" id="avatar">
+                <div class="avatar ripple-container press-bounce" id="avatar">
                     <img src="https://rmjun.github.io/liangzai/liangzai.jpg" alt="亮仔">
                 </div>
+                <div class="avatar-ripple" id="avatarRipple"></div>
             </div>
             <div class="accent-line"></div>
             <h1 class="profile-name">亮仔</h1>
             <p class="profile-title">Senior Data Clerk</p>
             <div class="tags">
-                <span class="tag active">资料员</span>
-                <span class="tag">28岁</span>
-                <span class="tag">成都</span>
-                <span class="tag">吃货</span>
+                <span class="tag active press-bounce">资料员</span>
+                <span class="tag press-bounce">28岁</span>
+                <span class="tag press-bounce">成都</span>
+                <span class="tag press-bounce">吃货</span>
             </div>
         </aside>
 
@@ -505,27 +691,27 @@
                 <div class="section-label">Profile</div>
                 <div class="section-title">基本信息</div>
                 <div class="info-grid">
-                    <div class="info-item">
+                    <div class="info-item press-scale ripple-container">
                         <div class="info-label">性别</div>
                         <div class="info-value">男</div>
                     </div>
-                    <div class="info-item">
+                    <div class="info-item press-scale ripple-container">
                         <div class="info-label">年龄</div>
                         <div class="info-value">28 岁</div>
                     </div>
-                    <div class="info-item">
+                    <div class="info-item press-scale ripple-container">
                         <div class="info-label">身高</div>
                         <div class="info-value">178 cm <span style="font-size:11px;color:var(--accent);margin-left:4px;">想长两米</span></div>
                     </div>
-                    <div class="info-item">
+                    <div class="info-item press-scale ripple-container">
                         <div class="info-label">体重</div>
                         <div class="info-value">68 kg</div>
                     </div>
-                    <div class="info-item">
+                    <div class="info-item press-scale ripple-container">
                         <div class="info-label">职业</div>
                         <div class="info-value"><span class="accent">资深资料员</span></div>
                     </div>
-                    <div class="info-item">
+                    <div class="info-item press-scale ripple-container">
                         <div class="info-label">所在地</div>
                         <div class="info-value">四川眉山</div>
                     </div>
@@ -536,11 +722,11 @@
                 <div class="section-label">Assets</div>
                 <div class="section-title">资产状况</div>
                 <div class="info-grid">
-                    <div class="info-item">
+                    <div class="info-item press-scale ripple-container">
                         <div class="info-label">房产</div>
                         <div class="info-value"><span class="accent">有房</span>（眉山）</div>
                     </div>
-                    <div class="info-item">
+                    <div class="info-item press-scale ripple-container">
                         <div class="info-label">车辆</div>
                         <div class="info-value"><span class="accent">有车</span>（本田）</div>
                     </div>
@@ -568,7 +754,7 @@
             </section>
 
             <section class="section">
-                <button class="cta" onclick="openModal()">
+                <button class="cta press-scale ripple-container" id="ctaBtn" onclick="openModal()">
                     联系我
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                 </button>
@@ -577,7 +763,7 @@
     </div>
 
     <!-- 音频按钮 -->
-    <button class="audio-btn" id="audioBtn" onclick="toggleAudio()">
+    <button class="audio-btn press-bounce" id="audioBtn" onclick="toggleAudio()">
         <span id="audioIcon">🔊</span>
     </button>
 
@@ -586,21 +772,21 @@
         <div class="modal-card">
             <h2 class="modal-title">联系方式</h2>
             <div class="contact-list" id="contactList">
-                <div class="contact-item">
+                <div class="contact-item ripple-container press-scale" onclick="copyText('微信：coder_xiaoming')">
                     <div class="contact-icon">💬</div>
                     <div class="contact-text">微信：coder_xiaoming</div>
                 </div>
-                <div class="contact-item">
+                <div class="contact-item ripple-container press-scale" onclick="copyText('QQ：123456789')">
                     <div class="contact-icon">📱</div>
                     <div class="contact-text">QQ：123456789</div>
                 </div>
-                <div class="contact-item">
+                <div class="contact-item ripple-container press-scale" onclick="copyText('邮箱：xiaoming@example.com')">
                     <div class="contact-icon">📧</div>
                     <div class="contact-text">邮箱：xiaoming@example.com</div>
                 </div>
             </div>
-            <button class="modal-btn" onclick="copyContact()">复制联系方式</button>
-            <button class="modal-close" onclick="closeModal()">关闭</button>
+            <button class="modal-btn ripple-container press-scale" onclick="copyContact()">复制全部</button>
+            <button class="modal-close press-scale" onclick="closeModal()">关闭</button>
         </div>
     </div>
 
@@ -615,6 +801,7 @@
     </audio>
 
     <script>
+        // ====== 音频控制 ======
         let isPlaying = false;
         let started = false;
 
@@ -634,24 +821,125 @@
             isPlaying = !isPlaying;
         }
 
+        // ====== 涟漪效果 ======
+        function createRipple(container, e, dark = false) {
+            const rect = container.getBoundingClientRect();
+            const ripple = document.createElement('div');
+            ripple.className = 'ripple' + (dark ? ' ripple-dark' : '');
+            const size = Math.max(rect.width, rect.height);
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = (e.clientX - rect.left - size/2) + 'px';
+            ripple.style.top = (e.clientY - rect.top - size/2) + 'px';
+            container.appendChild(ripple);
+            setTimeout(() => ripple.remove(), 600);
+        }
+
+        // ====== 粒子爆炸效果 ======
+        function createParticles(x, y, color = '#e85d4c') {
+            const colors = ['#e85d4c', '#ffb347', '#ff6b9d', '#c084fc'];
+            for (let i = 0; i < 12; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = x + 'px';
+                particle.style.top = y + 'px';
+                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                const angle = (Math.PI * 2 / 12) * i + Math.random() * 0.5;
+                const distance = 40 + Math.random() * 60;
+                particle.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
+                particle.style.setProperty('--ty', Math.sin(angle) * distance + 'px');
+                particle.style.animation = 'particleExplode 0.6s ease-out forwards';
+                document.body.appendChild(particle);
+                setTimeout(() => particle.remove(), 600);
+            }
+        }
+
+        // ====== 绑定涟漪效果 ======
+        document.querySelectorAll('.ripple-container').forEach(el => {
+            el.addEventListener('click', e => {
+                createRipple(el, e, el.classList.contains('cta') || el.classList.contains('modal-btn') || el.classList.contains('info-item'));
+            });
+        });
+
+        // ====== 头像点击特效 ======
+        document.getElementById('avatar').addEventListener('click', function(e) {
+            document.getElementById('photoModal').classList.add('show');
+            // 头像涟漪动画
+            const ripple = document.getElementById('avatarRipple');
+            ripple.classList.remove('animate');
+            void ripple.offsetWidth; // 触发重绘
+            ripple.classList.add('animate');
+            // 粒子效果
+            createParticles(e.clientX, e.clientY);
+        });
+
+        // ====== 标签点击效果 ======
+        document.querySelectorAll('.tag').forEach(tag => {
+            tag.addEventListener('click', function(e) {
+                // 切换激活状态
+                if (this.classList.contains('active')) return;
+                document.querySelectorAll('.tag.active').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                // 粒子效果
+                createParticles(e.clientX, e.clientY, '#1a1a1a');
+            });
+        });
+
+        // ====== CTA 按钮特效 ======
+        document.getElementById('ctaBtn').addEventListener('click', function(e) {
+            createParticles(e.clientX, e.clientY);
+        });
+
+        // ====== 弹窗控制 ======
         function openModal() { document.getElementById('contactModal').classList.add('show'); }
         function closeModal() { document.getElementById('contactModal').classList.remove('show'); }
 
+        function copyText(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('已复制: ' + text);
+            });
+        }
+
         function copyContact() {
-            const text = document.getElementById('contactList').innerText;
+            const text = document.getElementById('contactList').innerText.replace(/\n+/g, '\n');
             navigator.clipboard.writeText(text).then(() => {
                 const btn = document.querySelector('.modal-btn');
                 btn.textContent = '✓ 已复制';
                 btn.style.background = 'var(--accent)';
-                setTimeout(() => { btn.textContent = '复制联系方式'; btn.style.background = ''; }, 2000);
+                setTimeout(() => {
+                    btn.textContent = '复制全部';
+                    btn.style.background = '';
+                }, 2000);
             });
         }
 
-        document.getElementById('avatar').onclick = () => document.getElementById('photoModal').classList.add('show');
-        document.getElementById('photoModal').onclick = function(e) { if (e.target === this) this.classList.remove('show'); };
-        document.getElementById('contactModal').onclick = function(e) { if (e.target === this) closeModal(); };
-        document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); document.getElementById('photoModal').classList.remove('show'); } });
+        // ====== Toast 提示 ======
+        function showToast(msg) {
+            const toast = document.createElement('div');
+            toast.style.cssText = 'position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;padding:12px 24px;border-radius:8px;font-size:13px;z-index:9999;animation:fadeIn 0.3s ease;';
+            toast.textContent = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 2000);
+        }
 
+        // ====== 关闭弹窗 ======
+        document.getElementById('photoModal').onclick = function(e) { 
+            if (e.target === this) this.classList.remove('show'); 
+        };
+        document.getElementById('contactModal').onclick = function(e) { 
+            if (e.target === this) closeModal(); 
+        };
+        document.addEventListener('keydown', e => { 
+            if (e.key === 'Escape') { 
+                closeModal(); 
+                document.getElementById('photoModal').classList.remove('show'); 
+            } 
+        });
+
+        // ====== 初始化 ======
         window.addEventListener('load', () => {
             setTimeout(startAudio, 1600);
             document.body.addEventListener('click', startAudio, { once: true });
