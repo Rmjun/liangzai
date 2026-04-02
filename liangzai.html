@@ -4,14 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>亮仔 · 个人简介</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            --bg: #fff;
+            --bg: #ffffff;
             --fg: #1a1a1a;
             --muted: #6b6b6b;
             --accent: #e85d4c;
+            --accent-dark: #c94a3a;
             --accent-light: #fef2f0;
             --card: #fafafa;
             --border: #e8e8e8;
@@ -20,11 +23,85 @@
         html { scroll-behavior: smooth; }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", sans-serif;
+            font-family: 'Inter', -apple-system, sans-serif;
             background: var(--bg);
             color: var(--fg);
             line-height: 1.6;
             overflow-x: hidden;
+        }
+
+        /* ====== 涟漪效果基础 ====== */
+        .ripple-container {
+            position: relative;
+            overflow: hidden;
+        }
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.6);
+            transform: scale(0);
+            animation: rippleAnim 0.6s ease-out forwards;
+            pointer-events: none;
+        }
+        @keyframes rippleAnim {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        /* 深色涟漪 */
+        .ripple-dark {
+            background: rgba(0, 0, 0, 0.15);
+        }
+
+        /* ====== 按下缩放效果 ====== */
+        .press-scale {
+            transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), 
+                        box-shadow 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .press-scale:active {
+            transform: scale(0.96) !important;
+        }
+
+        /* ====== 弹性回弹效果 ====== */
+        .press-bounce {
+            transition: transform 0.1s ease;
+        }
+        .press-bounce:active {
+            transform: scale(0.92);
+        }
+        .press-bounce:not(:active) {
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* ====== 发光脉冲效果 ====== */
+        .glow-pulse {
+            animation: glowPulse 0.4s ease-out;
+        }
+        @keyframes glowPulse {
+            0% { box-shadow: 0 0 0 0 rgba(232, 93, 76, 0.4); }
+            100% { box-shadow: 0 0 0 20px rgba(232, 93, 76, 0); }
+        }
+
+        /* ====== 粒子爆炸效果 ====== */
+        .particle {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+        @keyframes particleExplode {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--tx), var(--ty)) scale(0);
+                opacity: 0;
+            }
         }
 
         /* ====== 开屏 ====== */
@@ -36,68 +113,42 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            animation: splashOut .5s ease 1.2s forwards;
+            animation: splashOut 0.6s ease 1.4s forwards;
         }
-        @keyframes splashOut { to { opacity: 0; visibility: hidden; } }
+        @keyframes splashOut {
+            to { opacity: 0; visibility: hidden; }
+        }
         .splash-inner { text-align: center; }
         .splash-img {
-            width: 180px;
-            border-radius: 14px;
+            width: 200px;
+            border-radius: 16px;
             opacity: 0;
-            animation: splashIn .9s ease forwards;
-            box-shadow: 0 16px 48px rgba(0,0,0,0.1);
+            animation: splashIn 1s ease forwards;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
         }
         @keyframes splashIn {
-            0% { opacity: 0; transform: scale(.85); }
-            50% { opacity: 1; transform: scale(1); }
-            100% { opacity: 0; transform: scale(1.05); }
+            0% { opacity: 0; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.02); }
+            100% { opacity: 0; transform: scale(1.1); }
         }
         .splash-name {
-            font-size: 28px;
+            font-family: 'Playfair Display', serif;
+            font-size: 36px;
             font-weight: 600;
-            margin-top: 20px;
+            margin-top: 24px;
             opacity: 0;
-            animation: fadeIn .4s ease .2s forwards;
-            letter-spacing: 6px;
+            animation: fadeIn 0.5s ease 0.3s forwards;
+            letter-spacing: 8px;
         }
-        @keyframes fadeIn { to { opacity: 1; } }
-
-        /* ====== 涟漪效果 ====== */
-        .ripple-wrap { position: relative; overflow: hidden; }
-        .ripple {
-            position: absolute;
-            border-radius: 50%;
-            background: rgba(0,0,0,.08);
-            transform: scale(0);
-            animation: ripple .5s ease-out forwards;
-            pointer-events: none;
-        }
-        @keyframes ripple { to { transform: scale(3); opacity: 0; } }
-        .ripple-light { background: rgba(255,255,255,.4); }
-
-        /* ====== 按压效果 ====== */
-        .press { transition: transform .15s ease, box-shadow .15s ease; }
-        .press:active { transform: scale(.97) !important; }
-
-        /* ====== 粒子 ====== */
-        .particle {
-            position: fixed;
-            width: 6px; height: 6px;
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 9999;
-            will-change: transform, opacity;
-        }
-        @keyframes pExplode {
-            0% { transform: translate(0,0) scale(1); opacity: 1; }
-            100% { transform: translate(var(--tx),var(--ty)) scale(0); opacity: 0; }
+        @keyframes fadeIn {
+            to { opacity: 1; }
         }
 
         /* ====== 布局 ====== */
         .page {
             min-height: 100vh;
             display: grid;
-            grid-template-columns: 340px 1fr;
+            grid-template-columns: 380px 1fr;
         }
 
         /* 左侧 */
@@ -109,109 +160,307 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 40px;
+            padding: 48px;
             border-right: 1px solid var(--border);
             background: var(--bg);
         }
 
-        .avatar-box { margin-bottom: 28px; }
+        .avatar-box {
+            position: relative;
+            margin-bottom: 32px;
+        }
         .avatar {
-            width: 240px; height: 240px;
-            border-radius: 18px;
+            width: 260px;
+            height: 260px;
+            border-radius: 20px;
             overflow: hidden;
             cursor: pointer;
-            transition: transform .3s ease, box-shadow .3s ease;
-            box-shadow: 0 6px 32px rgba(0,0,0,0.08);
-            will-change: transform;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), 
+                        box-shadow 0.4s ease;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.08);
         }
-        .avatar:hover { transform: translateY(-6px); box-shadow: 0 16px 48px rgba(0,0,0,0.12); }
-        .avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .avatar:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+        }
+        .avatar:active {
+            transform: translateY(-4px) scale(0.98);
+            transition: transform 0.1s ease;
+        }
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        .avatar:hover img { transform: scale(1.05); }
 
-        .line { width: 32px; height: 2px; background: var(--accent); margin-bottom: 20px; border-radius: 1px; }
+        /* 头像点击涟漪 */
+        .avatar-ripple {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            border-radius: 20px;
+            transform: translate(-50%, -50%) scale(0);
+            border: 3px solid var(--accent);
+            opacity: 0;
+            pointer-events: none;
+        }
+        .avatar-ripple.animate {
+            animation: avatarRipple 0.6s ease-out forwards;
+        }
+        @keyframes avatarRipple {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0.8; }
+            100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
+        }
 
-        .name { font-size: 28px; font-weight: 600; margin-bottom: 6px; text-align: center; }
-        .title { font-size: 12px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 24px; }
+        .accent-line {
+            width: 40px;
+            height: 3px;
+            background: var(--accent);
+            margin-bottom: 24px;
+            border-radius: 2px;
+        }
 
-        .tags { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
-        .tag {
-            padding: 5px 12px;
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            font-size: 11px;
+        .profile-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        .profile-title {
+            font-size: 13px;
             color: var(--muted);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 28px;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+        .tag {
+            padding: 6px 14px;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 12px;
+            color: var(--muted);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            letter-spacing: 0.5px;
             cursor: pointer;
-            transition: all .2s ease;
             user-select: none;
         }
-        .tag:hover { background: var(--fg); color: var(--bg); border-color: var(--fg); }
-        .tag.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+        .tag:hover {
+            background: var(--fg);
+            color: var(--bg);
+            border-color: var(--fg);
+            transform: scale(1.05);
+        }
+        .tag:active {
+            transform: scale(0.95);
+        }
+        .tag.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+        .tag.active:hover {
+            background: var(--accent-dark);
+        }
 
         /* 右侧 */
-        .content { padding: 60px 60px 60px 48px; max-width: 680px; }
-
-        .sec { margin-bottom: 48px; opacity: 0; transform: translateY(24px); animation: secIn .5s ease forwards; }
-        .sec:nth-child(1) { animation-delay: .1s; }
-        .sec:nth-child(2) { animation-delay: .2s; }
-        .sec:nth-child(3) { animation-delay: .3s; }
-        .sec:nth-child(4) { animation-delay: .4s; }
-        @keyframes secIn { to { opacity: 1; transform: translateY(0); } }
-
-        .sec-label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; font-weight: 500; }
-        .sec-title { font-size: 24px; font-weight: 600; margin-bottom: 20px; }
-
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        .item {
-            background: var(--card);
-            border-radius: 10px;
-            padding: 16px 20px;
-            transition: all .2s ease;
-            cursor: pointer;
+        .content {
+            padding: 80px 80px 80px 60px;
+            max-width: 720px;
         }
-        .item:hover { background: var(--accent-light); transform: translateY(-2px); }
-        .item-label { font-size: 10px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
-        .item-val { font-size: 15px; font-weight: 500; }
-        .item-val .hl { color: var(--accent); }
 
-        .list { list-style: none; }
+        .section {
+            margin-bottom: 56px;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: sectionIn 0.7s ease forwards;
+        }
+        .section:nth-child(1) { animation-delay: 0.2s; }
+        .section:nth-child(2) { animation-delay: 0.35s; }
+        .section:nth-child(3) { animation-delay: 0.5s; }
+        .section:nth-child(4) { animation-delay: 0.65s; }
+        @keyframes sectionIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-label {
+            font-size: 11px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 16px;
+            font-weight: 500;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            line-height: 1.3;
+        }
+
+        /* 信息网格 */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .info-item {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 20px 24px;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: pointer;
+            user-select: none;
+        }
+        .info-item:hover {
+            background: var(--accent-light);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 30px rgba(232, 93, 76, 0.15);
+        }
+        .info-item:active {
+            transform: translateY(-1px) scale(0.98);
+            transition: all 0.1s ease;
+        }
+
+        .info-label {
+            font-size: 11px;
+            color: var(--muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .info-value {
+            font-size: 16px;
+            font-weight: 500;
+        }
+        .info-value .accent {
+            color: var(--accent);
+        }
+
+        /* 列表 */
+        .list {
+            list-style: none;
+        }
         .list li {
-            padding: 10px 0;
+            padding: 12px 0;
             border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-size: 14px;
+            gap: 12px;
+            font-size: 15px;
+            color: var(--fg);
+            transition: all 0.3s ease;
             cursor: pointer;
-            transition: all .2s ease;
+            user-select: none;
         }
         .list li:last-child { border-bottom: none; }
-        .list li:hover { padding-left: 6px; color: var(--accent); }
-        .list li::before { content: ''; width: 5px; height: 5px; background: var(--accent); border-radius: 50%; flex-shrink: 0; }
+        .list li:hover {
+            padding-left: 8px;
+            color: var(--accent);
+        }
+        .list li:active {
+            padding-left: 4px;
+        }
+        .list li::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+            flex-shrink: 0;
+            transition: transform 0.3s ease;
+        }
+        .list li:hover::before {
+            transform: scale(1.5);
+        }
+        .list li:active::before {
+            transform: scale(1);
+        }
 
-        .text { font-size: 14px; color: var(--muted); line-height: 1.8; }
+        /* 文本块 */
+        .text-block {
+            font-size: 15px;
+            color: var(--muted);
+            line-height: 1.9;
+        }
+        .text-block strong {
+            color: var(--fg);
+            font-weight: 500;
+        }
 
-        .btn {
+        /* CTA */
+        .cta {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            padding: 14px 32px;
+            gap: 10px;
+            padding: 16px 36px;
             background: var(--fg);
             color: var(--bg);
             border: none;
             border-radius: 8px;
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 500;
             letter-spacing: 1px;
             cursor: pointer;
-            transition: all .2s ease;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
             margin-top: 8px;
+            position: relative;
+            overflow: hidden;
         }
-        .btn:hover { background: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(232,93,76,.25); }
+        .cta:hover {
+            background: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(232, 93, 76, 0.3);
+        }
+        .cta:active {
+            transform: translateY(-1px) scale(0.97);
+            transition: all 0.1s ease;
+        }
+        .cta svg {
+            transition: transform 0.3s ease;
+        }
+        .cta:hover svg {
+            transform: translateX(4px);
+        }
+
+        /* CTA 内部涟漪 */
+        .cta-ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(0);
+            animation: ctaRipple 0.5s ease-out forwards;
+            pointer-events: none;
+        }
+        @keyframes ctaRipple {
+            to {
+                transform: scale(3);
+                opacity: 0;
+            }
+        }
 
         /* 音频 */
         .audio-btn {
             position: fixed;
-            bottom: 24px; right: 24px;
-            width: 44px; height: 44px;
+            bottom: 32px;
+            right: 32px;
+            width: 52px;
+            height: 52px;
             border-radius: 50%;
             background: var(--fg);
             color: var(--bg);
@@ -220,327 +469,479 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
-            transition: all .2s ease;
+            font-size: 20px;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
             z-index: 100;
-            box-shadow: 0 4px 16px rgba(0,0,0,.12);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
         }
-        .audio-btn:hover { transform: scale(1.1); background: var(--accent); }
+        .audio-btn:hover {
+            transform: scale(1.15) rotate(10deg);
+            background: var(--accent);
+        }
+        .audio-btn:active {
+            transform: scale(0.9);
+            transition: transform 0.1s ease;
+        }
 
         /* 弹窗 */
         .modal {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(255,255,255,.96);
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
             z-index: 1000;
             align-items: center;
             justify-content: center;
-            animation: mBg .3s ease;
+            animation: modalBg 0.3s ease;
         }
         .modal.show { display: flex; }
-        @keyframes mBg { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes modalBg {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
 
         .modal-card {
             background: var(--bg);
-            border-radius: 16px;
-            padding: 40px;
-            max-width: 360px;
+            border-radius: 20px;
+            padding: 48px;
+            max-width: 400px;
             width: 90%;
-            box-shadow: 0 24px 64px rgba(0,0,0,.1);
-            animation: mIn .3s ease;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.1);
+            animation: modalIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-        @keyframes mIn { from { opacity: 0; transform: scale(.92) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.85) translateY(30px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
 
-        .modal-title { font-size: 20px; font-weight: 600; margin-bottom: 24px; text-align: center; }
+        .modal-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 32px;
+            text-align: center;
+        }
 
-        .contacts { margin-bottom: 24px; }
-        .c-item {
+        .contact-list { margin-bottom: 28px; }
+        .contact-item {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 12px 0;
+            gap: 16px;
+            padding: 14px 0;
             border-bottom: 1px solid var(--border);
             cursor: pointer;
-            transition: all .2s ease;
-            margin: 0 -8px;
-            padding-left: 8px;
-            padding-right: 8px;
-            border-radius: 6px;
-        }
-        .c-item:last-child { border-bottom: none; }
-        .c-item:hover { background: var(--accent-light); }
-        .c-icon {
-            width: 36px; height: 36px;
+            transition: all 0.3s ease;
             border-radius: 8px;
+            margin: 0 -12px;
+            padding-left: 12px;
+            padding-right: 12px;
+        }
+        .contact-item:last-child { border-bottom: none; }
+        .contact-item:hover {
+            background: var(--accent-light);
+            transform: translateX(4px);
+        }
+        .contact-item:active {
+            transform: scale(0.98);
+        }
+        .contact-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
             background: var(--accent-light);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
+            font-size: 18px;
+            transition: transform 0.3s ease;
         }
-        .c-text { font-size: 14px; }
+        .contact-item:hover .contact-icon {
+            transform: rotate(-10deg) scale(1.1);
+        }
+        .contact-text {
+            font-size: 15px;
+            color: var(--fg);
+        }
 
-        .m-btn {
+        .modal-btn {
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             background: var(--fg);
             color: var(--bg);
             border: none;
-            border-radius: 6px;
-            font-size: 13px;
+            border-radius: 8px;
+            font-size: 14px;
             font-weight: 500;
             cursor: pointer;
-            transition: background .2s ease;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
         }
-        .m-btn:hover { background: var(--accent); }
+        .modal-btn:hover { 
+            background: var(--accent);
+            transform: translateY(-2px);
+        }
+        .modal-btn:active {
+            transform: translateY(0) scale(0.97);
+        }
 
-        .m-close {
+        .modal-close {
             width: 100%;
-            padding: 10px;
-            margin-top: 8px;
+            padding: 12px;
+            margin-top: 10px;
             background: transparent;
             color: var(--muted);
             border: 1px solid var(--border);
-            border-radius: 6px;
-            font-size: 12px;
+            border-radius: 8px;
+            font-size: 13px;
             cursor: pointer;
+            transition: all 0.3s ease;
         }
-        .m-close:hover { background: var(--card); color: var(--fg); }
+        .modal-close:hover {
+            background: var(--card);
+            color: var(--fg);
+        }
+        .modal-close:active {
+            transform: scale(0.98);
+        }
 
         /* 图片弹窗 */
-        .p-modal {
+        .photo-modal {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,.92);
+            background: rgba(0,0,0,0.92);
             z-index: 2000;
             align-items: center;
             justify-content: center;
         }
-        .p-modal.show { display: flex; }
-        .p-modal img {
+        .photo-modal.show { display: flex; }
+        .photo-modal img {
             max-width: 90vw;
             max-height: 90vh;
-            border-radius: 12px;
+            border-radius: 16px;
             cursor: pointer;
-            animation: pIn .3s ease;
+            animation: photoIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-        @keyframes pIn { from { opacity: 0; transform: scale(.85); } to { opacity: 1; transform: scale(1); } }
+        @keyframes photoIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
 
         /* 响应式 */
-        @media (max-width: 860px) {
+        @media (max-width: 900px) {
             .page { grid-template-columns: 1fr; }
-            .sidebar { position: relative; height: auto; padding: 48px 20px 32px; border-right: none; border-bottom: 1px solid var(--border); }
-            .content { padding: 40px 20px; }
-            .grid { grid-template-columns: 1fr; }
+            .sidebar {
+                position: relative;
+                height: auto;
+                padding: 60px 24px 40px;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+            .content { padding: 48px 24px; }
+            .info-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
-    <div class="splash" id="splash">
+    <!-- 开屏 -->
+    <div class="splash">
         <div class="splash-inner">
             <img class="splash-img" src="https://rmjun.github.io/liangzai/bm.gif" alt="">
             <div class="splash-name">亮 仔</div>
         </div>
     </div>
 
+    <!-- 主页面 -->
     <div class="page">
+        <!-- 左侧 -->
         <aside class="sidebar">
             <div class="avatar-box">
-                <div class="avatar ripple-wrap press" id="avatar">
+                <div class="avatar ripple-container press-bounce" id="avatar">
                     <img src="https://rmjun.github.io/liangzai/liangzai.jpg" alt="亮仔">
                 </div>
+                <div class="avatar-ripple" id="avatarRipple"></div>
             </div>
-            <div class="line"></div>
-            <h1 class="name">亮仔</h1>
-            <p class="title">Senior Data Clerk</p>
+            <div class="accent-line"></div>
+            <h1 class="profile-name">亮仔</h1>
+            <p class="profile-title">Senior Data Clerk</p>
             <div class="tags">
-                <span class="tag on press">资料员</span>
-                <span class="tag press">28岁</span>
-                <span class="tag press">成都</span>
-                <span class="tag press">吃货</span>
+                <span class="tag active press-bounce">资料员</span>
+                <span class="tag press-bounce">28岁</span>
+                <span class="tag press-bounce">成都</span>
+                <span class="tag press-bounce">吃货</span>
             </div>
         </aside>
 
+        <!-- 右侧 -->
         <main class="content">
-            <div class="sec">
-                <div class="sec-label">About</div>
-                <div class="sec-title">一个有趣的灵魂</div>
-                <div class="text">每天和领导谈恋爱，偶尔和同事吵架。打游戏经常被队友喷，看叮当猫是个小屁孩渣男。爱吃美食但不会做饭，有房有车本田代步。</div>
-            </div>
-
-            <div class="sec">
-                <div class="sec-label">Profile</div>
-                <div class="sec-title">基本信息</div>
-                <div class="grid">
-                    <div class="item ripple-wrap press"><div class="item-label">性别</div><div class="item-val">男</div></div>
-                    <div class="item ripple-wrap press"><div class="item-label">年龄</div><div class="item-val">28 岁</div></div>
-                    <div class="item ripple-wrap press"><div class="item-label">身高</div><div class="item-val">178 cm <span style="font-size:10px;color:var(--accent);">想长两米</span></div></div>
-                    <div class="item ripple-wrap press"><div class="item-label">体重</div><div class="item-val">68 kg</div></div>
-                    <div class="item ripple-wrap press"><div class="item-label">职业</div><div class="item-val"><span class="hl">资深资料员</span></div></div>
-                    <div class="item ripple-wrap press"><div class="item-label">所在地</div><div class="item-val">四川眉山</div></div>
+            <section class="section">
+                <div class="section-label">About</div>
+                <div class="section-title">一个有趣的灵魂</div>
+                <div class="text-block">
+                    每天和领导谈恋爱，偶尔和同事吵架。<br>
+                    打游戏经常被队友喷，看叮当猫是个小屁孩渣男。<br>
+                    爱吃美食但不会做饭，有房有车本田代步。
                 </div>
-            </div>
+            </section>
 
-            <div class="sec">
-                <div class="sec-label">Assets</div>
-                <div class="sec-title">资产状况</div>
-                <div class="grid">
-                    <div class="item ripple-wrap press"><div class="item-label">房产</div><div class="item-val"><span class="hl">有房</span>（眉山）</div></div>
-                    <div class="item ripple-wrap press"><div class="item-label">车辆</div><div class="item-val"><span class="hl">有车</span>（本田）</div></div>
+            <section class="section">
+                <div class="section-label">Profile</div>
+                <div class="section-title">基本信息</div>
+                <div class="info-grid">
+                    <div class="info-item press-scale ripple-container">
+                        <div class="info-label">性别</div>
+                        <div class="info-value">男</div>
+                    </div>
+                    <div class="info-item press-scale ripple-container">
+                        <div class="info-label">年龄</div>
+                        <div class="info-value">28 岁</div>
+                    </div>
+                    <div class="info-item press-scale ripple-container">
+                        <div class="info-label">身高</div>
+                        <div class="info-value">178 cm <span style="font-size:11px;color:var(--accent);margin-left:4px;">想长两米</span></div>
+                    </div>
+                    <div class="info-item press-scale ripple-container">
+                        <div class="info-label">体重</div>
+                        <div class="info-value">68 kg</div>
+                    </div>
+                    <div class="info-item press-scale ripple-container">
+                        <div class="info-label">职业</div>
+                        <div class="info-value"><span class="accent">资深资料员</span></div>
+                    </div>
+                    <div class="info-item press-scale ripple-container">
+                        <div class="info-label">所在地</div>
+                        <div class="info-value">四川眉山</div>
+                    </div>
                 </div>
-            </div>
+            </section>
 
-            <div class="sec">
-                <div class="sec-label">Interests</div>
-                <div class="sec-title">兴趣爱好</div>
+            <section class="section">
+                <div class="section-label">Assets</div>
+                <div class="section-title">资产状况</div>
+                <div class="info-grid">
+                    <div class="info-item press-scale ripple-container">
+                        <div class="info-label">房产</div>
+                        <div class="info-value"><span class="accent">有房</span>（眉山）</div>
+                    </div>
+                    <div class="info-item press-scale ripple-container">
+                        <div class="info-label">车辆</div>
+                        <div class="info-value"><span class="accent">有车</span>（本田）</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <div class="section-label">Interests</div>
+                <div class="section-title">兴趣爱好</div>
                 <ul class="list">
                     <li>打游戏（经常被队友喷）</li>
                     <li>看叮当猫（小屁孩渣男标配）</li>
                     <li>吃美食（但不会做饭）</li>
                 </ul>
-            </div>
+            </section>
 
-            <div class="sec">
-                <div class="sec-label">Looking For</div>
-                <div class="sec-title">择偶要求</div>
+            <section class="section">
+                <div class="section-label">Looking For</div>
+                <div class="section-title">择偶要求</div>
                 <ul class="list">
                     <li>能接受我偶尔加班</li>
                     <li>不嫌弃我打游戏</li>
                     <li>最好会做饭（因为我真的不会）</li>
                 </ul>
-            </div>
+            </section>
 
-            <div class="sec">
-                <button class="btn ripple-wrap press" id="ctaBtn">联系我
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            <section class="section">
+                <button class="cta press-scale ripple-container" id="ctaBtn" onclick="openModal()">
+                    联系我
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                 </button>
-            </div>
+            </section>
         </main>
     </div>
 
-    <button class="audio-btn press" onclick="toggleAudio()"><span id="aIcon">🔊</span></button>
+    <!-- 音频按钮 -->
+    <button class="audio-btn press-bounce" id="audioBtn" onclick="toggleAudio()">
+        <span id="audioIcon">🔊</span>
+    </button>
 
-    <div class="modal" id="modal">
+    <!-- 联系弹窗 -->
+    <div class="modal" id="contactModal">
         <div class="modal-card">
-            <div class="modal-title">联系方式</div>
-            <div class="contacts" id="contacts">
-                <div class="c-item ripple-wrap press" onclick="cp('微信：coder_xiaoming')"><div class="c-icon">💬</div><div class="c-text">微信：coder_xiaoming</div></div>
-                <div class="c-item ripple-wrap press" onclick="cp('QQ：123456789')"><div class="c-icon">📱</div><div class="c-text">QQ：123456789</div></div>
-                <div class="c-item ripple-wrap press" onclick="cp('邮箱：xiaoming@example.com')"><div class="c-icon">📧</div><div class="c-text">邮箱：xiaoming@example.com</div></div>
+            <h2 class="modal-title">联系方式</h2>
+            <div class="contact-list" id="contactList">
+                <div class="contact-item ripple-container press-scale" onclick="copyText('微信：coder_xiaoming')">
+                    <div class="contact-icon">💬</div>
+                    <div class="contact-text">微信：coder_xiaoming</div>
+                </div>
+                <div class="contact-item ripple-container press-scale" onclick="copyText('QQ：123456789')">
+                    <div class="contact-icon">📱</div>
+                    <div class="contact-text">QQ：123456789</div>
+                </div>
+                <div class="contact-item ripple-container press-scale" onclick="copyText('邮箱：xiaoming@example.com')">
+                    <div class="contact-icon">📧</div>
+                    <div class="contact-text">邮箱：xiaoming@example.com</div>
+                </div>
             </div>
-            <button class="m-btn ripple-wrap press" onclick="cpAll()">复制全部</button>
-            <button class="m-close press" onclick="closeModal()">关闭</button>
+            <button class="modal-btn ripple-container press-scale" onclick="copyContact()">复制全部</button>
+            <button class="modal-close press-scale" onclick="closeModal()">关闭</button>
         </div>
     </div>
 
-    <div class="p-modal" id="pModal"><img src="https://rmjun.github.io/liangzai/liangzai.jpg" alt=""></div>
+    <!-- 图片弹窗 -->
+    <div class="photo-modal" id="photoModal">
+        <img src="https://rmjun.github.io/liangzai/liangzai.jpg" alt="">
+    </div>
 
-    <audio id="bgM" loop preload="auto"><source src="https://music.163.com/song/media/outer/url?id=1824045033.mp3"></audio>
+    <!-- 音频 -->
+    <audio id="bgMusic" loop preload="auto">
+        <source src="https://music.163.com/song/media/outer/url?id=1824045033.mp3" type="audio/mpeg">
+    </audio>
 
     <script>
-        // 音频
-        let playing = false, started = false;
-        const bgM = document.getElementById('bgM');
+        // ====== 音频控制 ======
+        let isPlaying = false;
+        let started = false;
 
         function startAudio() {
             if (started) return;
             started = true;
-            bgM.volume = 0.3;
-            bgM.play().then(() => playing = true).catch(() => {});
+            const m = document.getElementById('bgMusic');
+            m.volume = 0.3;
+            m.play().then(() => isPlaying = true).catch(() => {});
         }
 
         function toggleAudio() {
-            const i = document.getElementById('aIcon');
-            if (playing) { bgM.pause(); i.textContent = '🔇'; }
-            else { bgM.play().catch(() => {}); i.textContent = '🔊'; }
-            playing = !playing;
+            const m = document.getElementById('bgMusic');
+            const i = document.getElementById('audioIcon');
+            if (isPlaying) { m.pause(); i.textContent = '🔇'; }
+            else { m.play().catch(() => {}); i.textContent = '🔊'; }
+            isPlaying = !isPlaying;
         }
 
-        // 涟漪效果
-        function ripple(el, e, light = false) {
-            const r = el.getBoundingClientRect();
-            const d = document.createElement('div');
-            d.className = 'ripple' + (light ? ' ripple-light' : '');
-            const s = Math.max(r.width, r.height);
-            d.style.cssText = `width:${s}px;height:${s}px;left:${e.clientX-r.left-s/2}px;top:${e.clientY-r.top-s/2}px`;
-            el.appendChild(d);
-            setTimeout(() => d.remove(), 500);
+        // ====== 涟漪效果 ======
+        function createRipple(container, e, dark = false) {
+            const rect = container.getBoundingClientRect();
+            const ripple = document.createElement('div');
+            ripple.className = 'ripple' + (dark ? ' ripple-dark' : '');
+            const size = Math.max(rect.width, rect.height);
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = (e.clientX - rect.left - size/2) + 'px';
+            ripple.style.top = (e.clientY - rect.top - size/2) + 'px';
+            container.appendChild(ripple);
+            setTimeout(() => ripple.remove(), 600);
         }
 
-        // 粒子效果（减少数量）
-        function particles(x, y) {
-            const colors = ['#e85d4c', '#ffb347', '#ff6b9d'];
-            for (let i = 0; i < 6; i++) {
-                const p = document.createElement('div');
-                p.className = 'particle';
-                p.style.cssText = `left:${x}px;top:${y}px;background:${colors[i%3]}`;
-                const a = Math.PI * 2 / 6 * i;
-                const d = 30 + Math.random() * 40;
-                p.style.setProperty('--tx', Math.cos(a) * d + 'px');
-                p.style.setProperty('--ty', Math.sin(a) * d + 'px');
-                p.style.animation = 'pExplode .5s ease-out forwards';
-                document.body.appendChild(p);
-                setTimeout(() => p.remove(), 500);
+        // ====== 粒子爆炸效果 ======
+        function createParticles(x, y, color = '#e85d4c') {
+            const colors = ['#e85d4c', '#ffb347', '#ff6b9d', '#c084fc'];
+            for (let i = 0; i < 12; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = x + 'px';
+                particle.style.top = y + 'px';
+                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                const angle = (Math.PI * 2 / 12) * i + Math.random() * 0.5;
+                const distance = 40 + Math.random() * 60;
+                particle.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
+                particle.style.setProperty('--ty', Math.sin(angle) * distance + 'px');
+                particle.style.animation = 'particleExplode 0.6s ease-out forwards';
+                document.body.appendChild(particle);
+                setTimeout(() => particle.remove(), 600);
             }
         }
 
-        // 绑定涟漪
-        document.querySelectorAll('.ripple-wrap').forEach(el => {
-            el.addEventListener('click', e => ripple(el, e, el.classList.contains('btn') || el.classList.contains('m-btn')));
-        });
-
-        // 头像
-        document.getElementById('avatar').addEventListener('click', e => {
-            document.getElementById('pModal').classList.add('show');
-            particles(e.clientX, e.clientY);
-        });
-
-        // 标签
-        document.querySelectorAll('.tag').forEach(t => {
-            t.addEventListener('click', function(e) {
-                if (this.classList.contains('on')) return;
-                document.querySelectorAll('.tag.on').forEach(x => x.classList.remove('on'));
-                this.classList.add('on');
-                particles(e.clientX, e.clientY);
+        // ====== 绑定涟漪效果 ======
+        document.querySelectorAll('.ripple-container').forEach(el => {
+            el.addEventListener('click', e => {
+                createRipple(el, e, el.classList.contains('cta') || el.classList.contains('modal-btn') || el.classList.contains('info-item'));
             });
         });
 
-        // 按钮
-        document.getElementById('ctaBtn').addEventListener('click', e => particles(e.clientX, e.clientY));
+        // ====== 头像点击特效 ======
+        document.getElementById('avatar').addEventListener('click', function(e) {
+            document.getElementById('photoModal').classList.add('show');
+            // 头像涟漪动画
+            const ripple = document.getElementById('avatarRipple');
+            ripple.classList.remove('animate');
+            void ripple.offsetWidth; // 触发重绘
+            ripple.classList.add('animate');
+            // 粒子效果
+            createParticles(e.clientX, e.clientY);
+        });
 
-        // 弹窗
-        function openModal() { document.getElementById('modal').classList.add('show'); }
-        function closeModal() { document.getElementById('modal').classList.remove('show'); }
-
-        function cp(t) {
-            navigator.clipboard.writeText(t).then(() => {
-                const d = document.createElement('div');
-                d.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;padding:10px 20px;border-radius:6px;font-size:12px;z-index:9999';
-                d.textContent = '已复制';
-                document.body.appendChild(d);
-                setTimeout(() => d.remove(), 1500);
+        // ====== 标签点击效果 ======
+        document.querySelectorAll('.tag').forEach(tag => {
+            tag.addEventListener('click', function(e) {
+                // 切换激活状态
+                if (this.classList.contains('active')) return;
+                document.querySelectorAll('.tag.active').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                // 粒子效果
+                createParticles(e.clientX, e.clientY, '#1a1a1a');
             });
-        }
+        });
 
-        function cpAll() {
-            const t = document.getElementById('contacts').innerText;
-            navigator.clipboard.writeText(t).then(() => {
-                const b = document.querySelector('.m-btn');
-                b.textContent = '✓ 已复制';
-                b.style.background = 'var(--accent)';
-                setTimeout(() => { b.textContent = '复制全部'; b.style.background = ''; }, 1500);
+        // ====== CTA 按钮特效 ======
+        document.getElementById('ctaBtn').addEventListener('click', function(e) {
+            createParticles(e.clientX, e.clientY);
+        });
+
+        // ====== 弹窗控制 ======
+        function openModal() { document.getElementById('contactModal').classList.add('show'); }
+        function closeModal() { document.getElementById('contactModal').classList.remove('show'); }
+
+        function copyText(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('已复制: ' + text);
             });
         }
 
-        document.getElementById('pModal').onclick = function(e) { if (e.target === this) this.classList.remove('show'); };
-        document.getElementById('modal').onclick = function(e) { if (e.target === this) closeModal(); };
-        document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); document.getElementById('pModal').classList.remove('show'); } });
+        function copyContact() {
+            const text = document.getElementById('contactList').innerText.replace(/\n+/g, '\n');
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.querySelector('.modal-btn');
+                btn.textContent = '✓ 已复制';
+                btn.style.background = 'var(--accent)';
+                setTimeout(() => {
+                    btn.textContent = '复制全部';
+                    btn.style.background = '';
+                }, 2000);
+            });
+        }
 
-        // 初始化
+        // ====== Toast 提示 ======
+        function showToast(msg) {
+            const toast = document.createElement('div');
+            toast.style.cssText = 'position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;padding:12px 24px;border-radius:8px;font-size:13px;z-index:9999;animation:fadeIn 0.3s ease;';
+            toast.textContent = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 2000);
+        }
+
+        // ====== 关闭弹窗 ======
+        document.getElementById('photoModal').onclick = function(e) { 
+            if (e.target === this) this.classList.remove('show'); 
+        };
+        document.getElementById('contactModal').onclick = function(e) { 
+            if (e.target === this) closeModal(); 
+        };
+        document.addEventListener('keydown', e => { 
+            if (e.key === 'Escape') { 
+                closeModal(); 
+                document.getElementById('photoModal').classList.remove('show'); 
+            } 
+        });
+
+        // ====== 初始化 ======
         window.addEventListener('load', () => {
-            setTimeout(startAudio, 1400);
+            setTimeout(startAudio, 1600);
             document.body.addEventListener('click', startAudio, { once: true });
         });
     </script>
