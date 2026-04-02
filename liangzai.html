@@ -176,17 +176,6 @@
         .info-value { font-size: 16px; font-weight: 500; }
         .info-value .accent { color: var(--accent); }
 
-        /* 音效提示 */
-        .sound-hint {
-            display: inline-block;
-            font-size: 10px;
-            color: var(--accent);
-            margin-left: 8px;
-            opacity: 0;
-            transition: opacity .3s ease;
-        }
-        .info-item:hover .sound-hint { opacity: 1; }
-
         /* 列表 */
         .list { list-style: none; }
         .list li {
@@ -455,10 +444,10 @@
             <h1 class="name">亮仔</h1>
             <p class="title">Senior Data Clerk</p>
             <div class="tags">
-                <span class="tag active bounce" data-tag="ziliao">资料员</span>
-                <span class="tag bounce" data-tag="age">28岁</span>
-                <span class="tag bounce" data-tag="city">成都</span>
-                <span class="tag bounce" data-tag="food">吃货</span>
+                <span class="tag active bounce" data-tag="ziliao" data-sound="typewriter">资料员</span>
+                <span class="tag bounce" data-tag="age" data-sound="birthday">28岁</span>
+                <span class="tag bounce" data-tag="city" data-sound="panda">成都</span>
+                <span class="tag bounce" data-tag="food" data-sound="eat">吃货</span>
             </div>
         </aside>
 
@@ -479,7 +468,7 @@
                 <div class="section-title">基本信息 <span style="font-size:12px;color:var(--muted);font-weight:400;">(点击卡片听声音 🔊)</span></div>
                 <div class="info-grid">
                     <div class="info-item press ripple-wrap" data-sound="male"><div class="info-label">性别</div><div class="info-value">男</div></div>
-                    <div class="info-item press ripple-wrap" data-sound="age"><div class="info-label">年龄</div><div class="info-value">28 岁</div></div>
+                    <div class="info-item press ripple-wrap" data-sound="age-card"><div class="info-label">年龄</div><div class="info-value">28 岁</div></div>
                     <div class="info-item press ripple-wrap" data-sound="height"><div class="info-label">身高</div><div class="info-value">178 cm <span style="font-size:11px;color:var(--accent);margin-left:4px;">想长两米</span></div></div>
                     <div class="info-item press ripple-wrap" data-sound="weight"><div class="info-label">体重</div><div class="info-value">68 kg</div></div>
                     <div class="info-item press ripple-wrap" data-sound="job"><div class="info-label">职业</div><div class="info-value"><span class="accent">资深资料员</span></div></div>
@@ -574,10 +563,16 @@
     </audio>
 
     <script>
-        // ====== 搞笑音效 URL ======
+        // ====== 搞笑音效配置 ======
         const soundUrls = {
+            // 标签音效
+            typewriter: 'https://www.soundjay.com/mechanical/sounds/typewriter-key-1.mp3',
+            birthday: 'https://www.soundjay.com/human/sounds/birthday-party-1.mp3',
+            panda: 'https://www.soundjay.com/animal/sounds/animal-018.mp3',
+            eat: 'https://www.soundjay.com/human/sounds/eating-1.mp3',
+            // 卡片音效
             male: 'https://www.soundjay.com/human/sounds/male-clear-throat-01.mp3',
-            age: 'https://www.soundjay.com/human/sounds/man-screaming-01.mp3',
+            'age-card': 'https://www.soundjay.com/human/sounds/man-screaming-01.mp3',
             height: 'https://www.soundjay.com/misc/sounds/bell-ringing-01.mp3',
             weight: 'https://www.soundjay.com/misc/sounds/fail-buzzer-01.mp3',
             job: 'https://www.soundjay.com/human/sounds/applause-01.mp3',
@@ -691,7 +686,7 @@
             createParticles(e.clientX, e.clientY);
         });
 
-        // 基本信息/资产卡片点击 - 播放搞笑音效
+        // 信息卡片点击 - 播放音效
         document.querySelectorAll('.info-item[data-sound]').forEach(item => {
             item.addEventListener('click', function(e) {
                 const soundKey = this.dataset.sound;
@@ -700,17 +695,23 @@
             });
         });
 
-        // 标签点击
+        // 标签点击 - 播放音效 + 显示弹窗
         document.querySelectorAll('.tag').forEach(tag => {
             tag.addEventListener('click', function(e) {
                 const tagKey = this.dataset.tag;
+                const soundKey = this.dataset.sound;
                 const data = tagData[tagKey];
 
+                // 播放音效
+                playSound(soundKey);
+
+                // 显示弹窗
                 document.getElementById('tagEmoji').textContent = data.emoji;
                 document.getElementById('tagTitle').textContent = data.title;
                 document.getElementById('tagDesc').innerHTML = data.desc;
                 document.getElementById('tagModal').classList.add('show');
 
+                // 切换激活状态
                 document.querySelectorAll('.tag.active').forEach(t => t.classList.remove('active'));
                 this.classList.add('active');
 
@@ -766,7 +767,7 @@
 
         // 初始化
         window.addEventListener('load', () => {
-            preloadSounds(); // 预加载音效
+            preloadSounds();
             setTimeout(startAudio, 1500);
             document.body.addEventListener('click', startAudio, { once: true });
         });
