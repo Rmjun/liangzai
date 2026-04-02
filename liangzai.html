@@ -2,688 +2,711 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>相亲介绍</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>亮仔 · 相亲介绍</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
-        
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+
         body {
-            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 50%, #0a1a2e 100%);
+            font-family: 'Noto Sans SC', -apple-system, sans-serif;
+            background: #faf8f5;
+            color: #2d2a26;
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
             overflow-x: hidden;
         }
 
-        /* ====== 动态星空背景 ====== */
-        .cosmos {
+        /* ====== 背景装饰 ====== */
+        .bg-blob {
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: 0;
-            overflow: hidden;
-        }
-
-        .star-layer {
-            position: absolute;
-            width: 100%; height: 200%;
-            background-image: 
-                radial-gradient(2px 2px at 20px 30px, #fff, transparent),
-                radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
-                radial-gradient(1px 1px at 90px 40px, #fff, transparent),
-                radial-gradient(2px 2px at 160px 120px, rgba(255,200,255,0.9), transparent),
-                radial-gradient(1px 1px at 230px 80px, #fff, transparent),
-                radial-gradient(2px 2px at 300px 150px, rgba(200,220,255,0.8), transparent);
-            background-size: 350px 350px;
-            animation: starsDrift 120s linear infinite;
-        }
-        .star-layer:nth-child(2) { animation-duration: 180s; opacity: 0.7; transform: rotate(15deg); }
-        .star-layer:nth-child(3) { animation-duration: 240s; opacity: 0.5; transform: rotate(-10deg); }
-
-        @keyframes starsDrift {
-            from { transform: translateY(0); }
-            to { transform: translateY(-50%); }
-        }
-
-        /* 流星 */
-        .meteor {
-            position: absolute;
-            width: 3px; height: 3px;
-            background: #fff;
             border-radius: 50%;
-            box-shadow: 0 0 6px 2px rgba(255,255,255,0.8), -80px 0 20px 1px rgba(255,255,255,0.4);
-            animation: meteorFall 3s ease-in infinite;
-            opacity: 0;
-        }
-        @keyframes meteorFall {
-            0% { transform: translateX(0) translateY(0) rotate(-45deg); opacity: 1; }
-            100% { transform: translateX(-500px) translateY(500px) rotate(-45deg); opacity: 0; }
-        }
-
-        /* 极光效果 */
-        .aurora {
-            position: absolute;
-            top: 0; left: 0;
-            width: 200%; height: 100%;
-            background: linear-gradient(90deg, 
-                transparent 0%, 
-                rgba(100, 200, 255, 0.05) 20%,
-                rgba(200, 100, 255, 0.08) 40%,
-                rgba(100, 255, 200, 0.05) 60%,
-                transparent 100%);
-            animation: auroraMove 20s ease-in-out infinite;
-            filter: blur(60px);
-        }
-        @keyframes auroraMove {
-            0%, 100% { transform: translateX(-25%); }
-            50% { transform: translateX(0%); }
-        }
-
-        /* ====== 开屏动画 ====== */
-        .splash-screen {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: radial-gradient(ellipse at center, #1a0a2e 0%, #0a0a1a 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            animation: splashFade 1s ease-in-out 1.6s forwards;
-        }
-
-        .splash-content {
-            text-align: center;
-        }
-
-        .splash-horse {
-            width: 280px;
-            height: 280px;
-            margin: 0 auto 20px;
-            position: relative;
-            animation: horseGallop 0.3s ease-in-out infinite, horseEnter 1.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-            opacity: 0;
-            filter: drop-shadow(0 0 30px rgba(255, 200, 255, 0.5));
-        }
-        .splash-horse img {
-            width: 100%;
-            border-radius: 20px;
-        }
-
-        @keyframes horseEnter {
-            0% { opacity: 0; transform: translateX(-100vw) scale(0.3) rotate(-10deg); }
-            30% { opacity: 1; }
-            70% { transform: translateX(-5vw) scale(1.2) rotate(2deg); }
-            100% { opacity: 0; transform: translateX(0) scale(1.3) rotate(0deg); }
-        }
-        @keyframes horseGallop {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-8px) rotate(1deg); }
-        }
-
-        .splash-text {
-            color: transparent;
-            background: linear-gradient(90deg, #ff6b9d, #c084fc, #60a5fa, #ff6b9d);
-            background-size: 300% 100%;
-            -webkit-background-clip: text;
-            background-clip: text;
-            font-size: 42px;
-            font-weight: 700;
-            letter-spacing: 8px;
-            animation: textShine 2s ease-in-out infinite, textFadeIn 0.6s ease-out 0.3s forwards;
-            opacity: 0;
-            text-shadow: 0 0 40px rgba(192, 132, 252, 0.5);
-        }
-        @keyframes textShine {
-            0% { background-position: 0% 50%; }
-            100% { background-position: 100% 50%; }
-        }
-        @keyframes textFadeIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
-        @keyframes splashFade {
-            to { opacity: 0; visibility: hidden; pointer-events: none; }
-        }
-
-        /* ====== 主卡片 ====== */
-        .profile-card {
-            position: relative;
-            background: rgba(20, 10, 40, 0.6);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 28px;
-            padding: 40px;
-            max-width: 520px;
-            width: 100%;
-            z-index: 10;
-            box-shadow: 
-                0 0 60px rgba(192, 132, 252, 0.15),
-                0 25px 50px rgba(0, 0, 0, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1);
-            opacity: 0;
-            transform: translateY(40px) scale(0.95);
-            animation: cardReveal 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 1.5s forwards;
-        }
-
-        @keyframes cardReveal {
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
-        /* 卡片发光边框 */
-        .profile-card::before {
-            content: '';
-            position: absolute;
-            top: -2px; left: -2px; right: -2px; bottom: -2px;
-            background: linear-gradient(45deg, #ff6b9d, #c084fc, #60a5fa, #34d399, #ff6b9d);
-            background-size: 400% 400%;
-            border-radius: 30px;
-            z-index: -1;
-            animation: borderGlow 8s ease infinite;
-            opacity: 0.6;
-            filter: blur(8px);
-        }
-        @keyframes borderGlow {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-        }
-
-        /* 光束扫过效果 */
-        .profile-card::after {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%;
-            width: 50%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-            animation: lightSweep 6s ease-in-out infinite 2s;
+            filter: blur(80px);
+            opacity: 0.5;
+            z-index: 0;
             pointer-events: none;
         }
-        @keyframes lightSweep {
-            0% { left: -100%; }
-            50% { left: 150%; }
-            100% { left: 150%; }
+        .blob-1 {
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(255, 180, 120, 0.3), rgba(255, 140, 80, 0.1));
+            top: -200px; right: -100px;
+            animation: blobFloat 12s ease-in-out infinite;
+        }
+        .blob-2 {
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(255, 130, 130, 0.25), rgba(255, 100, 100, 0.05));
+            bottom: -100px; left: -100px;
+            animation: blobFloat 15s ease-in-out infinite reverse;
+        }
+        .blob-3 {
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(180, 200, 255, 0.2), transparent);
+            top: 40%; left: 30%;
+            animation: blobFloat 10s ease-in-out infinite 2s;
+        }
+        @keyframes blobFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -40px) scale(1.05); }
+            66% { transform: translate(-20px, 20px) scale(0.95); }
         }
 
-        /* ====== 头像区域 ====== */
-        .profile-header { text-align: center; margin-bottom: 35px; }
-
-        .avatar-ring {
-            position: relative;
-            width: 160px; height: 160px;
-            margin: 0 auto 25px;
-        }
-
-        .avatar-ring::before {
-            content: '';
-            position: absolute;
-            top: -4px; left: -4px; right: -4px; bottom: -4px;
-            background: linear-gradient(135deg, #ff6b9d, #c084fc, #60a5fa);
-            border-radius: 50%;
-            animation: ringRotate 4s linear infinite;
-            z-index: -1;
-        }
-        @keyframes ringRotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        .avatar-ring::after {
-            content: '';
-            position: absolute;
-            top: -8px; left: -8px; right: -8px; bottom: -8px;
-            background: linear-gradient(135deg, #ff6b9d, #c084fc, #60a5fa);
-            border-radius: 50%;
-            animation: ringRotate 4s linear infinite reverse;
-            z-index: -2;
-            opacity: 0.4;
-            filter: blur(8px);
-        }
-
-        .avatar-photo {
-            width: 160px; height: 160px;
-            border-radius: 50%;
-            overflow: hidden;
-            background: #1a1a2e;
-            cursor: pointer;
-            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-            box-shadow: 0 0 40px rgba(192, 132, 252, 0.3);
-        }
-        .avatar-photo:hover {
-            transform: scale(1.08);
-        }
-        .avatar-photo img {
-            width: 100%; height: 100%;
-            object-fit: cover;
-        }
-
-        /* 呼吸光晕 */
-        .avatar-glow {
-            position: absolute;
-            top: 50%; left: 50%;
-            width: 200px; height: 200px;
-            transform: translate(-50%, -50%);
-            background: radial-gradient(circle, rgba(192, 132, 252, 0.3) 0%, transparent 70%);
-            border-radius: 50%;
-            animation: glowPulse 3s ease-in-out infinite;
-            z-index: -3;
-        }
-        @keyframes glowPulse {
-            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
-            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.3; }
-        }
-
-        .profile-name {
-            font-size: 32px;
-            font-weight: 700;
-            color: #fff;
-            margin-bottom: 15px;
-            text-shadow: 0 0 30px rgba(192, 132, 252, 0.5);
-            animation: nameGlow 2s ease-in-out infinite alternate;
-        }
-        @keyframes nameGlow {
-            from { text-shadow: 0 0 20px rgba(192, 132, 252, 0.3); }
-            to { text-shadow: 0 0 40px rgba(255, 107, 157, 0.5), 0 0 60px rgba(192, 132, 252, 0.3); }
-        }
-
-        .tag-container { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; }
-
-        .tag {
-            padding: 8px 20px;
-            background: linear-gradient(135deg, rgba(255, 107, 157, 0.2), rgba(192, 132, 252, 0.2));
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 25px;
-            color: #fff;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            animation: tagPop 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
-        }
-        .tag:nth-child(1) { animation-delay: 1.7s; }
-        .tag:nth-child(2) { animation-delay: 1.8s; }
-        .tag:nth-child(3) { animation-delay: 1.9s; }
-        @keyframes tagPop {
-            from { opacity: 0; transform: scale(0.5) rotate(-10deg); }
-            to { opacity: 1; transform: scale(1) rotate(0deg); }
-        }
-        .tag:hover {
-            background: linear-gradient(135deg, rgba(255, 107, 157, 0.4), rgba(192, 132, 252, 0.4));
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 8px 25px rgba(192, 132, 252, 0.3);
-        }
-
-        /* ====== 信息区域 ====== */
-        .profile-info { margin: 30px 0; }
-
-        .info-section {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 16px;
-            padding: 18px 20px;
-            margin-bottom: 15px;
-            transition: all 0.3s ease;
-            animation: infoSlide 0.6s ease-out backwards;
-        }
-        .info-section:nth-child(1) { animation-delay: 2s; }
-        .info-section:nth-child(2) { animation-delay: 2.1s; }
-        .info-section:nth-child(3) { animation-delay: 2.2s; }
-        .info-section:nth-child(4) { animation-delay: 2.3s; }
-        .info-section:nth-child(5) { animation-delay: 2.4s; }
-        @keyframes infoSlide {
-            from { opacity: 0; transform: translateX(-30px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-        .info-section:hover {
-            background: rgba(255, 255, 255, 0.06);
-            border-color: rgba(192, 132, 252, 0.3);
-            transform: translateX(8px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        }
-
-        .info-row {
+        /* ====== 导航栏 ====== */
+        .navbar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            padding: 24px 48px;
             display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            font-size: 16px;
-            color: rgba(255, 255, 255, 0.85);
+            justify-content: space-between;
+            align-items: center;
+            animation: navbarIn 0.8s ease-out;
         }
-        .info-row > span {
+        @keyframes navbarIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .nav-logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 22px;
+            font-weight: 600;
+            color: #2d2a26;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+        .nav-tag {
+            font-size: 12px;
+            color: #999;
+            letter-spacing: 2px;
+        }
+        .audio-btn {
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0,0,0,0.06);
+            cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 6px;
-        }
-
-        .info-text {
-            color: rgba(255, 255, 255, 0.75);
-            line-height: 1.7;
-            font-size: 15px;
-        }
-        .info-text p { margin: 6px 0; }
-
-        .highlight {
-            color: #c084fc;
-            font-weight: 600;
-            text-shadow: 0 0 15px rgba(192, 132, 252, 0.5);
-        }
-
-        .height-joke {
-            margin-left: 10px;
-            font-size: 12px;
-            background: linear-gradient(90deg, #ff6b9d, #fbbf24, #34d399, #60a5fa);
-            background-size: 300% 100%;
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            animation: jokeShine 3s linear infinite;
-            font-weight: 600;
-        }
-        @keyframes jokeShine {
-            0% { background-position: 0% 50%; }
-            100% { background-position: 300% 50%; }
-        }
-
-        /* ====== 联系按钮 ====== */
-        .contact-btn {
-            display: block;
-            width: 100%;
-            max-width: 380px;
-            margin: 30px auto 0;
-            padding: 18px;
-            background: linear-gradient(135deg, #ff6b9d, #c084fc);
-            border: none;
-            border-radius: 50px;
-            color: #fff;
+            justify-content: center;
             font-size: 18px;
-            font-weight: 600;
-            letter-spacing: 2px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+        .audio-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        /* ====== 主内容 ====== */
+        .main {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 100px 48px 60px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        /* ====== 左侧：头像区 ====== */
+        .left-panel {
+            flex: 0 0 340px;
+            padding-right: 60px;
+            animation: slideIn 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.2s both;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-60px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .avatar-wrap {
+            position: relative;
+            margin-bottom: 40px;
+        }
+
+        .avatar-frame {
+            width: 280px; height: 280px;
+            border-radius: 24px;
+            overflow: hidden;
             cursor: pointer;
             position: relative;
-            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.12);
             transition: all 0.4s ease;
-            box-shadow: 0 10px 40px rgba(192, 132, 252, 0.4);
-            animation: btnFloat 3s ease-in-out infinite;
         }
-        @keyframes btnFloat {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
+        .avatar-frame:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 30px 80px rgba(0,0,0,0.16);
         }
-        .contact-btn::before {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%;
+        .avatar-frame img {
             width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            animation: btnShine 3s ease-in-out infinite;
+            object-fit: cover;
+            transition: transform 0.6s ease;
         }
-        @keyframes btnShine {
-            0% { left: -100%; }
-            50%, 100% { left: 150%; }
+        .avatar-frame:hover img { transform: scale(1.05); }
+
+        /* 头像装饰条 */
+        .avatar-accent {
+            position: absolute;
+            width: 4px;
+            height: 80px;
+            background: linear-gradient(180deg, #ff8c6b, #ffb347);
+            border-radius: 4px;
+            top: 20px; left: -16px;
         }
-        .contact-btn:hover {
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 15px 50px rgba(255, 107, 157, 0.5);
+
+        /* 头像下方标签 */
+        .avatar-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .avatar-tag {
+            padding: 6px 16px;
+            background: #fff;
+            border: 1px solid rgba(0,0,0,0.08);
+            border-radius: 20px;
+            font-size: 13px;
+            color: #666;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+        .avatar-tag:hover {
+            background: #2d2a26;
+            color: #fff;
+            border-color: #2d2a26;
+        }
+        .avatar-tag.highlight {
+            background: #ff8c6b;
+            color: #fff;
+            border-color: #ff8c6b;
+        }
+
+        /* ====== 右侧：信息区 ====== */
+        .right-panel {
+            flex: 1;
+            animation: slideInRight 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.4s both;
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(60px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .intro-label {
+            font-size: 12px;
+            letter-spacing: 4px;
+            color: #ff8c6b;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+            font-weight: 500;
+        }
+
+        .name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 72px;
+            font-weight: 700;
+            line-height: 1;
+            color: #2d2a26;
+            margin-bottom: 8px;
+            letter-spacing: -1px;
+        }
+        .name-en {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 18px;
+            font-weight: 400;
+            color: #aaa;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            margin-bottom: 48px;
+        }
+
+        .tagline {
+            font-size: 17px;
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 48px;
+            max-width: 480px;
+            font-weight: 300;
+        }
+
+        /* ====== 信息网格 ====== */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 48px;
+        }
+
+        .info-card {
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0,0,0,0.05);
+            border-radius: 16px;
+            padding: 22px 24px;
+            transition: all 0.3s ease;
+            animation: cardIn 0.6s ease-out backwards;
+        }
+        .info-card:nth-child(1) { animation-delay: 0.6s; }
+        .info-card:nth-child(2) { animation-delay: 0.7s; }
+        .info-card:nth-child(3) { animation-delay: 0.8s; }
+        .info-card:nth-child(4) { animation-delay: 0.9s; }
+        @keyframes cardIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .info-card:hover {
+            background: rgba(255,255,255,0.95);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+        }
+
+        .info-card-label {
+            font-size: 11px;
+            letter-spacing: 2px;
+            color: #bbb;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .info-card-value {
+            font-size: 15px;
+            color: #2d2a26;
+            line-height: 1.6;
+            font-weight: 400;
+        }
+        .info-card-value .emoji { margin-right: 6px; }
+        .info-card-value strong {
+            color: #ff8c6b;
+            font-weight: 500;
+        }
+
+        /* 身高特效 */
+        .height-badge {
+            display: inline-block;
+            font-size: 11px;
+            background: linear-gradient(90deg, #ff8c6b, #ffb347);
+            color: #fff;
+            padding: 3px 8px;
+            border-radius: 10px;
+            margin-left: 8px;
+            font-weight: 500;
+            animation: badgePulse 2s ease-in-out infinite;
+        }
+        @keyframes badgePulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        /* ====== 全宽信息区 ====== */
+        .full-section {
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0,0,0,0.05);
+            border-radius: 20px;
+            padding: 28px 32px;
+            margin-bottom: 16px;
+            animation: cardIn 0.6s ease-out 1s backwards;
+        }
+        .full-section-title {
+            font-size: 11px;
+            letter-spacing: 3px;
+            color: #bbb;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+            font-weight: 500;
+        }
+        .full-section-content {
+            font-size: 15px;
+            color: #444;
+            line-height: 2;
+        }
+        .full-section-content li {
+            list-style: none;
+            padding: 4px 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        .full-section-content li::before {
+            content: '·';
+            color: #ff8c6b;
+            font-size: 20px;
+            line-height: 1.4;
+            flex-shrink: 0;
+        }
+
+        /* ====== CTA 按钮 ====== */
+        .cta-wrap {
+            animation: cardIn 0.6s ease-out 1.1s backwards;
+        }
+        .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 18px 44px;
+            background: #2d2a26;
+            color: #fff;
+            border: none;
+            border-radius: 60px;
+            font-size: 15px;
+            font-weight: 500;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            box-shadow: 0 8px 30px rgba(45,42,38,0.2);
+        }
+        .cta-btn:hover {
+            background: #ff8c6b;
+            transform: translateY(-3px);
+            box-shadow: 0 14px 40px rgba(255,140,107,0.3);
+        }
+        .cta-btn svg {
+            transition: transform 0.3s ease;
+        }
+        .cta-btn:hover svg {
+            transform: translateX(4px);
+        }
+
+        /* ====== 页脚 ====== */
+        .footer {
+            text-align: center;
+            padding: 40px;
+            font-size: 12px;
+            color: #ccc;
+            letter-spacing: 2px;
+            position: relative;
+            z-index: 1;
         }
 
         /* ====== 弹窗 ====== */
-        .modal {
+        .modal-overlay {
             display: none;
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(10px);
-            z-index: 10000;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(250, 248, 245, 0.9);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
             justify-content: center;
             align-items: center;
-            animation: modalFade 0.3s ease;
+            animation: modalIn 0.4s ease;
         }
-        .modal.show { display: flex; }
-        @keyframes modalFade {
+        .modal-overlay.show { display: flex; }
+        @keyframes modalIn {
             from { opacity: 0; }
             to { opacity: 1; }
         }
 
-        .modal-box {
-            background: rgba(30, 15, 50, 0.95);
-            border: 1px solid rgba(192, 132, 252, 0.3);
-            border-radius: 24px;
-            padding: 35px 30px;
-            max-width: 340px;
+        .modal-card {
+            background: #fff;
+            border-radius: 28px;
+            padding: 48px 44px;
+            max-width: 380px;
             width: 90%;
             text-align: center;
-            animation: modalPop 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-            box-shadow: 0 25px 80px rgba(192, 132, 252, 0.3);
+            box-shadow: 0 30px 100px rgba(0,0,0,0.12);
+            animation: modalCard 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
-        @keyframes modalPop {
-            from { opacity: 0; transform: scale(0.8) translateY(20px); }
+        @keyframes modalCard {
+            from { opacity: 0; transform: scale(0.85) translateY(30px); }
             to { opacity: 1; transform: scale(1) translateY(0); }
         }
-
         .modal-title {
-            color: #c084fc;
-            font-size: 22px;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 28px;
             font-weight: 600;
-            margin-bottom: 20px;
+            margin-bottom: 8px;
+            color: #2d2a26;
         }
-
-        .contact-info {
-            color: rgba(255, 255, 255, 0.85);
+        .modal-sub {
+            font-size: 13px;
+            color: #aaa;
+            letter-spacing: 2px;
+            margin-bottom: 36px;
+        }
+        .modal-contacts {
+            text-align: left;
+            background: #faf8f5;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        .modal-contact-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 10px 0;
+            font-size: 15px;
+            color: #444;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        .modal-contact-item:last-child { border-bottom: none; }
+        .modal-contact-icon {
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #ff8c6b, #ffb347);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 16px;
-            line-height: 2.2;
-            user-select: text;
+            flex-shrink: 0;
         }
-
-        .modal-btn {
+        .modal-copy-btn {
+            width: 100%;
+            padding: 16px;
+            background: #2d2a26;
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 1px;
+        }
+        .modal-copy-btn:hover { background: #ff8c6b; }
+        .modal-close {
+            margin-top: 12px;
             width: 100%;
             padding: 14px;
-            margin-top: 20px;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
+            background: transparent;
+            color: #aaa;
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 14px;
+            font-size: 14px;
             cursor: pointer;
             transition: all 0.3s ease;
+            letter-spacing: 1px;
         }
-        .modal-btn.primary {
-            background: linear-gradient(135deg, #34d399, #10b981);
-            color: #fff;
-        }
-        .modal-btn.secondary {
-            background: rgba(255, 255, 255, 0.1);
-            color: rgba(255, 255, 255, 0.7);
-            margin-top: 10px;
-        }
-        .modal-btn:hover { transform: scale(1.02); }
+        .modal-close:hover { background: #f5f5f5; color: #666; }
 
-        /* 图片查看弹窗 */
-        .photo-modal img {
-            max-width: 90vw;
-            max-height: 85vh;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-        }
-
-        /* ====== 音频控制 ====== */
-        .audio-toggle {
+        /* 图片查看 */
+        .photo-overlay {
+            display: none;
             position: fixed;
-            bottom: 25px;
-            right: 25px;
-            width: 55px;
-            height: 55px;
-            background: rgba(30, 15, 50, 0.8);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(192, 132, 252, 0.3);
-            border-radius: 50%;
-            display: flex;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 2000;
             justify-content: center;
             align-items: center;
+        }
+        .photo-overlay.show { display: flex; }
+        .photo-overlay img {
+            max-width: 90vw;
+            max-height: 90vh;
+            border-radius: 20px;
+            box-shadow: 0 30px 100px rgba(0,0,0,0.5);
             cursor: pointer;
-            z-index: 9999;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 25px rgba(192, 132, 252, 0.3);
+            animation: photoIn 0.4s ease;
         }
-        .audio-toggle:hover {
-            transform: scale(1.1);
-            box-shadow: 0 8px 35px rgba(192, 132, 252, 0.5);
-        }
-        .audio-toggle span {
-            font-size: 24px;
-        }
-
-        /* ====== 浮动粒子 ====== */
-        .particles {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            pointer-events: none;
-            z-index: 1;
-        }
-        .particle {
-            position: absolute;
-            width: 6px;
-            height: 6px;
-            background: radial-gradient(circle, rgba(192, 132, 252, 0.8) 0%, transparent 70%);
-            border-radius: 50%;
-            animation: particleFloat 15s ease-in-out infinite;
-        }
-        @keyframes particleFloat {
-            0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.6; }
-            25% { transform: translate(100px, -150px) scale(1.5); opacity: 0.3; }
-            50% { transform: translate(-50px, -300px) scale(0.8); opacity: 0.8; }
-            75% { transform: translate(80px, -200px) scale(1.2); opacity: 0.4; }
+        @keyframes photoIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
         }
 
         /* ====== 响应式 ====== */
-        @media (max-width: 600px) {
-            .profile-card { padding: 30px 25px 120px; }
-            .profile-name { font-size: 26px; }
-            .avatar-ring, .avatar-photo { width: 130px; height: 130px; }
-            .contact-btn {
-                position: fixed;
-                bottom: 25px;
-                left: 20px;
-                right: 20px;
-                width: auto;
-                max-width: none;
-            }
-            .splash-text { font-size: 28px; letter-spacing: 4px; }
-            .splash-horse { width: 200px; height: 200px; }
+        @media (max-width: 900px) {
+            .main { flex-direction: column; padding: 100px 24px 40px; }
+            .left-panel { flex: none; padding-right: 0; margin-bottom: 48px; text-align: center; }
+            .avatar-wrap { display: flex; flex-direction: column; align-items: center; }
+            .avatar-accent { display: none; }
+            .avatar-tags { justify-content: center; }
+            .name { font-size: 52px; }
+            .tagline { text-align: center; }
+            .info-grid { grid-template-columns: 1fr 1fr; }
+            .navbar { padding: 20px 24px; }
+        }
+        @media (max-width: 500px) {
+            .info-grid { grid-template-columns: 1fr; }
+            .name { font-size: 44px; }
+        }
+
+        /* ====== 开屏动画 ====== */
+        .splash {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: #faf8f5;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: splashOut 0.8s ease-in-out 1.2s forwards;
+        }
+        @keyframes splashOut {
+            to { opacity: 0; visibility: hidden; pointer-events: none; }
+        }
+        .splash-content {
+            text-align: center;
+        }
+        .splash-horse {
+            width: 220px;
+            border-radius: 20px;
+            animation: horseSplash 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            opacity: 0;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+        }
+        @keyframes horseSplash {
+            0% { opacity: 0; transform: scale(0.6) translateY(40px); }
+            40% { opacity: 1; transform: scale(1.05) translateY(0); }
+            100% { opacity: 0; transform: scale(1.1) translateY(-20px); }
+        }
+        .splash-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 28px;
+            font-weight: 600;
+            color: #2d2a26;
+            margin-top: 20px;
+            opacity: 0;
+            animation: splashText 0.6s ease-out 0.3s forwards;
+            letter-spacing: 6px;
+        }
+        @keyframes splashText {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 <body>
-    <!-- 星空背景 -->
-    <div class="cosmos">
-        <div class="aurora"></div>
-        <div class="star-layer"></div>
-        <div class="star-layer"></div>
-        <div class="star-layer"></div>
-    </div>
-
-    <!-- 粒子 -->
-    <div class="particles" id="particles"></div>
+    <!-- 背景装饰 -->
+    <div class="bg-blob blob-1"></div>
+    <div class="bg-blob blob-2"></div>
+    <div class="bg-blob blob-3"></div>
 
     <!-- 开屏动画 -->
-    <div class="splash-screen" id="splashScreen">
+    <div class="splash" id="splash">
         <div class="splash-content">
-            <div class="splash-horse">
-                <img src="https://rmjun.github.io/liangzai/bm.gif" alt="白马">
-            </div>
-            <div class="splash-text">寻找真爱</div>
+            <img class="splash-horse" src="https://rmjun.github.io/liangzai/bm.gif" alt="">
+            <div class="splash-text">亮 仔</div>
         </div>
     </div>
 
-    <!-- 主卡片 -->
-    <div class="profile-card">
-        <div class="profile-header">
-            <div class="avatar-ring" id="avatarRing">
-                <div class="avatar-glow"></div>
-                <div class="avatar-photo" id="avatarPhoto">
-                    <img src="https://rmjun.github.io/liangzai/liangzai.jpg" alt="头像">
+    <!-- 导航 -->
+    <nav class="navbar">
+        <div>
+            <div class="nav-logo">LIANGZAI</div>
+            <div class="nav-tag">PERSONAL PROFILE</div>
+        </div>
+        <button class="audio-btn" id="audioBtn" onclick="toggleAudio()">
+            <span id="audioIcon">🔊</span>
+        </button>
+    </nav>
+
+    <!-- 主内容 -->
+    <main class="main">
+        <!-- 左侧头像 -->
+        <div class="left-panel">
+            <div class="avatar-wrap">
+                <div class="avatar-accent"></div>
+                <div class="avatar-frame" id="avatarFrame">
+                    <img src="https://rmjun.github.io/liangzai/liangzai.jpg" alt="亮仔">
                 </div>
             </div>
-            <h1 class="profile-name">亮仔</h1>
-            <div class="tag-container">
-                <span class="tag">资料员</span>
-                <span class="tag">渣男</span>
-                <span class="tag">吃货</span>
+            <div class="avatar-tags">
+                <span class="avatar-tag highlight">资料员</span>
+                <span class="avatar-tag">渣男</span>
+                <span class="avatar-tag">吃货</span>
+                <span class="avatar-tag">28岁</span>
+                <span class="avatar-tag">成都</span>
             </div>
         </div>
 
-        <div class="profile-info">
-            <div class="info-section">
-                <div class="info-row">
-                    <span>👤 性别：<span class="highlight">男</span></span>
-                    <span>🎂 年龄：<span class="highlight">28</span></span>
-                    <span>📏 身高：<span class="highlight">178cm</span><span class="height-joke">我也想长两米高</span></span>
-                    <span>⚖️ 体重：<span class="highlight">68kg</span></span>
+        <!-- 右侧信息 -->
+        <div class="right-panel">
+            <div class="intro-label">👋 你好，我是</div>
+            <h1 class="name">亮仔</h1>
+            <div class="name-en">Liang Zai</div>
+
+            <p class="tagline">
+                每天和领导谈恋爱，偶尔和同事吵架。<br>
+                打游戏被队友喷，看叮当猫是个小屁孩渣男。<br>
+                吃美食但不会做饭，有房有车本田代步。
+            </p>
+
+            <!-- 基本信息网格 -->
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="info-card-label">基本信息</div>
+                    <div class="info-card-value">
+                        👤 男 · 🎂 28岁<br>
+                        📏 178cm <span class="height-badge">我也想长两米高</span><br>
+                        ⚖️ 68kg
+                    </div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-label">职业背景</div>
+                    <div class="info-card-value">
+                        👨‍💻 <strong>资深资料员</strong><br>
+                        💼 甲方工作，稳定体面<br>
+                        📍 四川眉山
+                    </div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-label">资产状况</div>
+                    <div class="info-card-value">
+                        🏠 <strong>有房</strong>（眉山）<br>
+                        🚗 <strong>有车</strong>（本田）
+                    </div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-label">兴趣爱好</div>
+                    <div class="info-card-value">
+                        🎮 游戏（被队友喷）<br>
+                        🎬 叮当猫（渣男标配）<br>
+                        🍜 吃美食（不会做）
+                    </div>
                 </div>
             </div>
 
-            <div class="info-section">
-                <div class="info-text">
-                    <p>👨‍💻 职业：<span class="highlight">资深资料员</span></p>
-                    <p>💼 工作：每天和领导谈恋爱，偶尔和同事吵架</p>
-                </div>
+            <!-- 择偶要求 -->
+            <div class="full-section">
+                <div class="full-section-title">💝 择偶要求</div>
+                <ul class="full-section-content">
+                    <li>能接受我偶尔加班</li>
+                    <li>不嫌弃我打游戏</li>
+                    <li>最好会做饭（因为我真的不会）</li>
+                </ul>
             </div>
 
-            <div class="info-section">
-                <div class="info-text">
-                    <p>🏠 住房：<span class="highlight">有房</span>（虽然是在眉山）</p>
-                    <p>🚗 座驾：<span class="highlight">有车</span>（一辆国外产的本田）</p>
-                </div>
-            </div>
-
-            <div class="info-section">
-                <div class="info-text">
-                    <p>🎮 爱好：</p>
-                    <p>• 打游戏（但经常被队友喷）</p>
-                    <p>• 看叮当猫（小屁孩渣男）</p>
-                    <p>• 吃美食（但不会做饭）</p>
-                </div>
-            </div>
-
-            <div class="info-section">
-                <div class="info-text">
-                    <p>💝 择偶要求：</p>
-                    <p>• 能接受我偶尔加班</p>
-                    <p>• 不嫌弃我打游戏</p>
-                    <p>• 最好会做饭（因为我不会）</p>
-                </div>
+            <!-- CTA -->
+            <div class="cta-wrap">
+                <button class="cta-btn" onclick="openModal()">
+                    💌 联系我
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </button>
             </div>
         </div>
+    </main>
 
-        <button class="contact-btn" onclick="showContact()">💝 联系我</button>
-    </div>
+    <footer class="footer">
+        © 2026 LIANGZAI · 眉山
+    </footer>
 
     <!-- 联系弹窗 -->
-    <div class="modal" id="contactModal">
-        <div class="modal-box">
-            <div class="modal-title">📬 联系方式</div>
-            <div class="contact-info" id="contactInfo">
-                微信：coder_xiaoming<br>
-                QQ：123456789<br>
-                邮箱：xiaoming@example.com
+    <div class="modal-overlay" id="contactModal">
+        <div class="modal-card">
+            <div class="modal-title">💌 联系方式</div>
+            <div class="modal-sub">LIANG ZAI · CONTACT</div>
+            <div class="modal-contacts" id="contactText">
+                <div class="modal-contact-item">
+                    <div class="modal-contact-icon">💬</div>
+                    <div>微信：coder_xiaoming</div>
+                </div>
+                <div class="modal-contact-item">
+                    <div class="modal-contact-icon">📱</div>
+                    <div>QQ：123456789</div>
+                </div>
+                <div class="modal-contact-item">
+                    <div class="modal-contact-icon">📧</div>
+                    <div>邮箱：xiaoming@example.com</div>
+                </div>
             </div>
-            <button class="modal-btn primary" onclick="copyContact()">📋 一键复制</button>
-            <button class="modal-btn secondary" onclick="closeModal()">关闭</button>
+            <button class="modal-copy-btn" onclick="copyContact()">📋 一键复制联系方式</button>
+            <button class="modal-close" onclick="closeModal()">关闭</button>
         </div>
     </div>
 
-    <!-- 图片弹窗 -->
-    <div class="modal photo-modal" id="photoModal">
-        <img src="https://rmjun.github.io/liangzai/liangzai.jpg" id="photoImg" onclick="closePhotoModal()">
-    </div>
-
-    <!-- 音频控制 -->
-    <div class="audio-toggle" id="audioToggle" onclick="toggleAudio()">
-        <span id="audioIcon">🔊</span>
+    <!-- 图片查看 -->
+    <div class="photo-overlay" id="photoModal">
+        <img src="https://rmjun.github.io/liangzai/liangzai.jpg" alt="亮仔">
     </div>
 
     <!-- 音频 -->
@@ -692,79 +715,33 @@
     </audio>
 
     <script>
-        // ====== 配置 ======
-        const CONFIG = {
-            splashDuration: 1600,
-            bgMusicDelay: 2500,
-            particleCount: 30,
-            meteorInterval: 4000
-        };
-
-        // ====== 音频系统 ======
-        let audioContext = null;
         let isPlaying = false;
-        let bgMusicStarted = false;
+        let started = false;
 
-        function initAudio() {
-            const bgMusic = document.getElementById('bgMusic');
-            bgMusic.volume = 0.4;
-        }
-
-        function playBgMusic() {
-            if (bgMusicStarted) return;
-            const bgMusic = document.getElementById('bgMusic');
-            bgMusic.play().then(() => {
+        function startAudio() {
+            if (started) return;
+            started = true;
+            const music = document.getElementById('bgMusic');
+            music.volume = 0.35;
+            music.play().then(() => {
                 isPlaying = true;
-                updateAudioIcon();
-                bgMusicStarted = true;
             }).catch(() => {});
         }
 
         function toggleAudio() {
-            const bgMusic = document.getElementById('bgMusic');
+            const music = document.getElementById('bgMusic');
+            const icon = document.getElementById('audioIcon');
             if (isPlaying) {
-                bgMusic.pause();
+                music.pause();
+                icon.textContent = '🔇';
             } else {
-                bgMusic.play().catch(() => {});
+                music.play().catch(() => {});
+                icon.textContent = '🔊';
             }
             isPlaying = !isPlaying;
-            updateAudioIcon();
         }
 
-        function updateAudioIcon() {
-            document.getElementById('audioIcon').textContent = isPlaying ? '🔊' : '🔇';
-        }
-
-        // ====== 粒子系统 ======
-        function createParticles() {
-            const container = document.getElementById('particles');
-            for (let i = 0; i < CONFIG.particleCount; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.top = Math.random() * 100 + '%';
-                particle.style.animationDelay = Math.random() * 15 + 's';
-                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
-                const colors = ['rgba(192, 132, 252, 0.6)', 'rgba(255, 107, 157, 0.6)', 'rgba(96, 165, 250, 0.6)'];
-                particle.style.background = `radial-gradient(circle, ${colors[Math.floor(Math.random() * colors.length)]} 0%, transparent 70%)`;
-                container.appendChild(particle);
-            }
-        }
-
-        // ====== 流星 ======
-        function createMeteor() {
-            const cosmos = document.querySelector('.cosmos');
-            const meteor = document.createElement('div');
-            meteor.className = 'meteor';
-            meteor.style.top = Math.random() * 50 + '%';
-            meteor.style.left = (50 + Math.random() * 50) + '%';
-            meteor.style.animationDuration = (2 + Math.random() * 2) + 's';
-            cosmos.appendChild(meteor);
-            setTimeout(() => meteor.remove(), 4000);
-        }
-
-        // ====== 弹窗 ======
-        function showContact() {
+        function openModal() {
             document.getElementById('contactModal').classList.add('show');
         }
 
@@ -773,51 +750,43 @@
         }
 
         function copyContact() {
-            const text = document.getElementById('contactInfo').innerText;
+            const text = document.getElementById('contactText').innerText;
             navigator.clipboard.writeText(text).then(() => {
-                alert('✅ 联系方式已复制！');
+                const btn = document.querySelector('.modal-copy-btn');
+                btn.textContent = '✅ 已复制！';
+                btn.style.background = '#ff8c6b';
+                setTimeout(() => {
+                    btn.textContent = '📋 一键复制联系方式';
+                    btn.style.background = '';
+                }, 2000);
             });
         }
 
         // 头像点击
-        document.getElementById('avatarPhoto').onclick = function() {
+        document.getElementById('avatarFrame').onclick = function() {
             document.getElementById('photoModal').classList.add('show');
         };
 
-        function closePhotoModal() {
-            document.getElementById('photoModal').classList.remove('show');
-        }
+        document.getElementById('photoModal').onclick = function(e) {
+            if (e.target === this) this.classList.remove('show');
+        };
 
-        // 点击遮罩关闭
         document.getElementById('contactModal').onclick = function(e) {
             if (e.target === this) closeModal();
         };
-        document.getElementById('photoModal').onclick = function(e) {
-            if (e.target === this) closePhotoModal();
-        };
 
-        // ====== 初始化 ======
-        window.addEventListener('load', () => {
-            initAudio();
-            createParticles();
-
-            // 定时创建流星
-            setInterval(createMeteor, CONFIG.meteorInterval);
-            setTimeout(createMeteor, 1000);
-
-            // 自动播放背景音乐
-            setTimeout(playBgMusic, CONFIG.bgMusicDelay);
-
-            // 用户交互后播放
-            document.body.addEventListener('click', playBgMusic, { once: true });
-        });
-
-        // 键盘支持
-        document.addEventListener('keydown', (e) => {
+        document.addEventListener('keydown', e => {
             if (e.key === 'Escape') {
                 closeModal();
-                closePhotoModal();
+                document.getElementById('photoModal').classList.remove('show');
             }
+        });
+
+        // 初始化
+        window.addEventListener('load', () => {
+            setTimeout(startAudio, 1500);
+            // 用户交互后确保音频播放
+            document.body.addEventListener('click', startAudio, { once: true });
         });
     </script>
 </body>
