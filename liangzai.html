@@ -152,6 +152,7 @@
             cursor: pointer;
             transition: all .3s cubic-bezier(.34,1.56,.64,1);
             user-select: none;
+            position: relative;
         }
         .tag:hover { background: var(--fg); color: var(--bg); border-color: var(--fg); transform: scale(1.05); }
         .tag:active { transform: scale(.95); }
@@ -341,6 +342,73 @@
         }
         .modal-close:hover { background: var(--card); color: var(--fg); }
 
+        /* 标签弹窗 */
+        .tag-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.5);
+            backdrop-filter: blur(5px);
+            z-index: 1001;
+            align-items: center;
+            justify-content: center;
+            animation: modalBg .3s ease;
+        }
+        .tag-modal.show { display: flex; }
+
+        .tag-modal-card {
+            background: linear-gradient(135deg, #fff 0%, #fef2f0 100%);
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 360px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 30px 80px rgba(0,0,0,.2);
+            animation: tagModalIn .4s cubic-bezier(.34,1.56,.64,1);
+            border: 2px solid var(--accent);
+        }
+        @keyframes tagModalIn {
+            from { opacity: 0; transform: scale(.7) rotate(-5deg); }
+            to { opacity: 1; transform: scale(1) rotate(0deg); }
+        }
+
+        .tag-modal-emoji {
+            font-size: 64px;
+            margin-bottom: 20px;
+            animation: emojiBounce .5s ease infinite alternate;
+        }
+        @keyframes emojiBounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-10px); }
+        }
+
+        .tag-modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 16px;
+        }
+
+        .tag-modal-desc {
+            font-size: 15px;
+            color: var(--muted);
+            line-height: 1.8;
+            margin-bottom: 24px;
+        }
+
+        .tag-modal-close {
+            padding: 12px 32px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all .3s ease;
+        }
+        .tag-modal-close:hover { transform: scale(1.05); box-shadow: 0 8px 25px rgba(232,93,76,.3); }
+
         /* 图片弹窗 */
         .photo-modal {
             display: none;
@@ -393,10 +461,10 @@
             <h1 class="name">亮仔</h1>
             <p class="title">Senior Data Clerk</p>
             <div class="tags">
-                <span class="tag active bounce">资料员</span>
-                <span class="tag bounce">28岁</span>
-                <span class="tag bounce">成都</span>
-                <span class="tag bounce">吃货</span>
+                <span class="tag active bounce" data-tag="ziliao">资料员</span>
+                <span class="tag bounce" data-tag="age">28岁</span>
+                <span class="tag bounce" data-tag="city">成都</span>
+                <span class="tag bounce" data-tag="food">吃货</span>
             </div>
         </aside>
 
@@ -491,6 +559,16 @@
         </div>
     </div>
 
+    <!-- 标签弹窗 -->
+    <div class="tag-modal" id="tagModal">
+        <div class="tag-modal-card">
+            <div class="tag-modal-emoji" id="tagEmoji">😂</div>
+            <div class="tag-modal-title" id="tagTitle">标签标题</div>
+            <div class="tag-modal-desc" id="tagDesc">标签描述</div>
+            <button class="tag-modal-close" onclick="closeTagModal()">知道了 😏</button>
+        </div>
+    </div>
+
     <!-- 图片弹窗 -->
     <div class="photo-modal" id="photoModal">
         <img src="https://rmjun.github.io/liangzai/liangzai.jpg" alt="">
@@ -502,6 +580,30 @@
     </audio>
 
     <script>
+        // 标签数据
+        const tagData = {
+            ziliao: {
+                emoji: '📋',
+                title: '资深资料员',
+                desc: '每天的工作就是：复制、粘贴、改格式、调间距。<br>领导说我是"办公室Excel之神"，<br>其实我只是会按快捷键而已 🙈'
+            },
+            age: {
+                emoji: '🎂',
+                title: '28岁',
+                desc: '年龄28，心态18。<br>虽然已经过了叛逆期，<br>但看见游戏还是控制不住自己 🎮'
+            },
+            city: {
+                emoji: '🐼',
+                title: '成都/眉山',
+                desc: '眉山有房，成都上班。<br>每天通勤2小时，<br>就当是欣赏沿途风景了 🚗'
+            },
+            food: {
+                emoji: '🍜',
+                title: '资深吃货',
+                desc: '精通各种外卖平台优惠攻略。<br>做饭？不存在的。<br>但我能精确说出方圆5公里所有好吃的！ 🍔'
+            }
+        };
+
         // 音频控制
         let isPlaying = false, started = false;
         const bgMusic = document.getElementById('bgMusic');
@@ -567,15 +669,31 @@
             createParticles(e.clientX, e.clientY);
         });
 
-        // 标签点击
+        // 标签点击 - 显示搞笑弹窗
         document.querySelectorAll('.tag').forEach(tag => {
             tag.addEventListener('click', function(e) {
-                if (this.classList.contains('active')) return;
+                const tagKey = this.dataset.tag;
+                const data = tagData[tagKey];
+
+                // 更新弹窗内容
+                document.getElementById('tagEmoji').textContent = data.emoji;
+                document.getElementById('tagTitle').textContent = data.title;
+                document.getElementById('tagDesc').innerHTML = data.desc;
+
+                // 显示弹窗
+                document.getElementById('tagModal').classList.add('show');
+
+                // 切换激活状态
                 document.querySelectorAll('.tag.active').forEach(t => t.classList.remove('active'));
                 this.classList.add('active');
+
                 createParticles(e.clientX, e.clientY);
             });
         });
+
+        function closeTagModal() {
+            document.getElementById('tagModal').classList.remove('show');
+        }
 
         // CTA按钮
         document.getElementById('ctaBtn').addEventListener('click', e => createParticles(e.clientX, e.clientY));
@@ -600,7 +718,7 @@
 
         function showToast(msg) {
             const toast = document.createElement('div');
-            toast.style.cssText = 'position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;padding:12px 24px;border-radius:8px;font-size:13px;z-index:9999;animation:fadeIn .3s ease;';
+            toast.style.cssText = 'position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;padding:12px 24px;border-radius:8px;font-size:13px;z-index:9999;';
             toast.textContent = msg;
             document.body.appendChild(toast);
             setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity .3s ease'; setTimeout(() => toast.remove(), 300); }, 2000);
@@ -609,7 +727,15 @@
         // 关闭弹窗
         document.getElementById('photoModal').onclick = function(e) { if (e.target === this) this.classList.remove('show'); };
         document.getElementById('contactModal').onclick = function(e) { if (e.target === this) closeModal(); };
-        document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); document.getElementById('photoModal').classList.remove('show'); } });
+        document.getElementById('tagModal').onclick = function(e) { if (e.target === this) closeTagModal(); };
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') {
+                closeModal();
+                closeTagModal();
+                document.getElementById('photoModal').classList.remove('show');
+            }
+        });
 
         // 初始化
         window.addEventListener('load', () => {
