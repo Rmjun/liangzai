@@ -5,358 +5,820 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>相亲介绍</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+        
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: #000; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; overflow: auto; position: relative; }
-        .splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: flex; justify-content: center; align-items: center; z-index: 9999; animation: fadeOut 1.8s ease-in-out 1.8s forwards; overflow: hidden; }
-        .splash-container { position: relative; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; }
-        .splash-text { color: #fff; font-size: 48px; font-weight: bold; text-align: center; opacity: 0; position: relative; animation: splashTextFadeIn 0.8s ease-out 0.5s forwards; text-shadow: 0 0 10px rgba(255,255,255,0.5); z-index: 2; }
-        .horse { position: absolute; width: 350px; height: 350px; left: 50%; bottom: 10%; transform: translateX(-50%); display: flex; justify-content: center; align-items: flex-end; pointer-events: none; z-index: 1; }
-        .horse-gif { width: 100%; height: auto; border-radius: 18px; box-shadow: 0 8px 32px 0 rgba(0,0,0,0.25); opacity: 0; transform: translateX(-60vw) scale(0.3); animation: horseEnter 1.8s cubic-bezier(.7,.2,.2,1) forwards; background: #000; object-fit: cover; }
-        .horse-wind { position: absolute; left: 10%; bottom: 40%; width: 80px; height: 30px; background: linear-gradient(90deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 100%); opacity: 0.5; filter: blur(2px); animation: windMove 0.5s linear infinite; z-index: 0; }
-        .stars { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; }
-        .star { position: absolute; background: #fff; border-radius: 50%; animation: twinkle var(--duration) infinite; opacity: 0; }
-        .shooting-star { position: absolute; width: 100px; height: 2px; background: linear-gradient(90deg, rgba(255,255,255,0) 0%, #fff 50%, rgba(255,255,255,0) 100%); animation: shooting var(--duration) infinite; opacity: 0; }
-        .profile-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); max-width: 600px; width: 100%; position: relative; overflow: hidden; opacity: 0; transform: scale(0.8); animation: cardAppear 0.8s ease-out 1.5s forwards; }
-        .profile-header { text-align: center; margin-bottom: 30px; position: relative; }
-        .profile-photo { width: 150px; height: 150px; border-radius: 50%; margin: 0 auto 20px; background: #f0f0f0; position: relative; overflow: hidden; animation: float 3s ease-in-out infinite; box-shadow: 0 0 20px rgba(255,107,107,0.3); }
-        .profile-photo::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent); transform: rotate(45deg); animation: shine 3s infinite; }
-        .profile-photo img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
-        .profile-photo:hover img { transform: scale(1.1); }
-        .profile-name { font-size: 28px; font-weight: bold; color: #333; margin-bottom: 10px; animation: slideIn 1s ease-out; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); }
-        .profile-tag { display: inline-block; padding: 5px 15px; background: #ff6b6b; color: white; border-radius: 20px; font-size: 16px; margin: 5px; animation: popIn 0.5s ease-out; transition: transform 0.3s ease; }
-        .profile-tag:hover { transform: scale(1.1) rotate(5deg); }
-        .profile-info { margin: 30px 0; animation: fadeIn 1s ease-out; }
-        .info-item { margin: 15px 0; padding: 15px; background: #f8f9fa; border-radius: 10px; transition: all 0.3s ease; position: relative; overflow: hidden; }
-        .info-item:hover { transform: translateX(10px); background: #e9ecef; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .highlight { color: #ff6b6b; font-weight: bold; }
-        .contact-button { display: flex; justify-content: center; align-items: center; margin: 30px auto 0 auto; width: 90vw; max-width: 400px; min-width: 120px; padding: 15px; background: linear-gradient(45deg, #4CAF50, #45a049); color: white; border: none; border-radius: 10px; font-size: 18px; cursor: pointer; transition: all 0.3s ease; animation: pulse 2s infinite; position: relative; overflow: hidden; box-sizing: border-box; }
-        .contact-button:hover { transform: scale(1.05); box-shadow: 0 5px 15px rgba(76,175,80,0.3); }
-        .floating-hearts { position: absolute; width: 100%; height: 100%; pointer-events: none; }
-        .heart { position: absolute; font-size: 20px; color: #ff6b6b; animation: floatHeart 4s ease-in-out infinite; opacity: 0; filter: drop-shadow(0 0 5px rgba(255,107,107,0.5)); }
-        .audio-control { position: fixed; bottom: 20px; right: 20px; background: white; padding: 10px; border-radius: 50%; box-shadow: 0 2px 10px rgba(0,0,0,0.1); cursor: pointer; z-index: 1000; transition: transform 0.3s ease; }
-        .audio-control:hover { transform: scale(1.1); }
-        @keyframes fadeOut { from { opacity: 1; background: #000; } to { opacity: 0; background: transparent; visibility: hidden; } }
-        @keyframes cardAppear { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
-        @keyframes shine { 0% { transform: translateX(-100%) rotate(45deg); } 100% { transform: translateX(100%) rotate(45deg); } }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-        @keyframes slideIn { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        @keyframes popIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-        @keyframes floatHeart { 0% { transform: translateY(100vh) rotate(0deg); opacity: 1; } 100% { transform: translateY(-100px) rotate(360deg); opacity: 0; } }
-        @keyframes twinkle { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
-        @keyframes shooting { 0% { transform: translateX(-100%) translateY(0) rotate(45deg); opacity: 0; } 10% { opacity: 1; } 20% { transform: translateX(100%) translateY(100px) rotate(45deg); opacity: 0; } 100% { transform: translateX(100%) translateY(100px) rotate(45deg); opacity: 0; } }
-        @keyframes horseEnter { 0% { opacity: 0; transform: translateX(-60vw) scale(0.3); } 20% { opacity: 1; } 60% { transform: translateX(-10vw) scale(1.1); } 80% { transform: translateX(0) scale(1.3); } 100% { opacity: 0; transform: translateX(0) scale(1.3); } }
-        @keyframes windMove { 0% { opacity: 0.5; left: 10%; } 100% { opacity: 0; left: -30%; } }
-        @keyframes splashTextFadeIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
-        .particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; }
-        .particle { position: absolute; width: 5px; height: 5px; background: rgba(255,107,107,0.5); border-radius: 50%; animation: particleFloat 20s infinite linear; }
-        @keyframes particleFloat { 0% { transform: translateY(0) translateX(0); } 25% { transform: translateY(-100px) translateX(100px); } 50% { transform: translateY(-200px) translateX(0); } 75% { transform: translateY(-100px) translateX(-100px); } 100% { transform: translateY(0) translateX(0); } }
-        .photo-modal { display: none; position: fixed; z-index: 99999; left: 0; top: 0; width: 100vw; height: 100vh; justify-content: center; align-items: center; background: rgba(0,0,0,0.7); }
-        .photo-modal.show { display: flex !important; }
-        .photo-modal-img { position: relative; max-width: 90vw; max-height: 80vh; border-radius: 20px; box-shadow: 0 8px 32px 0 rgba(0,0,0,0.5); animation: modalZoomIn 0.3s; background: #fff; }
-        @keyframes modalZoomIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .info-row { display: flex; gap: 24px; flex-wrap: wrap; align-items: center; font-size: 18px; justify-content: flex-start; }
-        .info-row > span { display: flex; align-items: center; gap: 4px; position: relative; }
-        .height-effect { margin-left: 8px; font-size: 14px; font-weight: bold; background: linear-gradient(90deg, #ff6b6b, #07C160, #3b82f6, #ff6b6b); background-size: 200% 100%; color: transparent; -webkit-background-clip: text; background-clip: text; animation: heightEffectAnim 2s infinite linear; padding: 0 4px; }
-        @keyframes heightEffectAnim { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
+        
+        body {
+            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 50%, #0a1a2e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        /* ====== 动态星空背景 ====== */
+        .cosmos {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .star-layer {
+            position: absolute;
+            width: 100%; height: 200%;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, #fff, transparent),
+                radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
+                radial-gradient(1px 1px at 90px 40px, #fff, transparent),
+                radial-gradient(2px 2px at 160px 120px, rgba(255,200,255,0.9), transparent),
+                radial-gradient(1px 1px at 230px 80px, #fff, transparent),
+                radial-gradient(2px 2px at 300px 150px, rgba(200,220,255,0.8), transparent);
+            background-size: 350px 350px;
+            animation: starsDrift 120s linear infinite;
+        }
+        .star-layer:nth-child(2) { animation-duration: 180s; opacity: 0.7; transform: rotate(15deg); }
+        .star-layer:nth-child(3) { animation-duration: 240s; opacity: 0.5; transform: rotate(-10deg); }
+
+        @keyframes starsDrift {
+            from { transform: translateY(0); }
+            to { transform: translateY(-50%); }
+        }
+
+        /* 流星 */
+        .meteor {
+            position: absolute;
+            width: 3px; height: 3px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 6px 2px rgba(255,255,255,0.8), -80px 0 20px 1px rgba(255,255,255,0.4);
+            animation: meteorFall 3s ease-in infinite;
+            opacity: 0;
+        }
+        @keyframes meteorFall {
+            0% { transform: translateX(0) translateY(0) rotate(-45deg); opacity: 1; }
+            100% { transform: translateX(-500px) translateY(500px) rotate(-45deg); opacity: 0; }
+        }
+
+        /* 极光效果 */
+        .aurora {
+            position: absolute;
+            top: 0; left: 0;
+            width: 200%; height: 100%;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(100, 200, 255, 0.05) 20%,
+                rgba(200, 100, 255, 0.08) 40%,
+                rgba(100, 255, 200, 0.05) 60%,
+                transparent 100%);
+            animation: auroraMove 20s ease-in-out infinite;
+            filter: blur(60px);
+        }
+        @keyframes auroraMove {
+            0%, 100% { transform: translateX(-25%); }
+            50% { transform: translateX(0%); }
+        }
+
+        /* ====== 开屏动画 ====== */
+        .splash-screen {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: radial-gradient(ellipse at center, #1a0a2e 0%, #0a0a1a 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            animation: splashFade 1s ease-in-out 1.6s forwards;
+        }
+
+        .splash-content {
+            text-align: center;
+        }
+
+        .splash-horse {
+            width: 280px;
+            height: 280px;
+            margin: 0 auto 20px;
+            position: relative;
+            animation: horseGallop 0.3s ease-in-out infinite, horseEnter 1.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            opacity: 0;
+            filter: drop-shadow(0 0 30px rgba(255, 200, 255, 0.5));
+        }
+        .splash-horse img {
+            width: 100%;
+            border-radius: 20px;
+        }
+
+        @keyframes horseEnter {
+            0% { opacity: 0; transform: translateX(-100vw) scale(0.3) rotate(-10deg); }
+            30% { opacity: 1; }
+            70% { transform: translateX(-5vw) scale(1.2) rotate(2deg); }
+            100% { opacity: 0; transform: translateX(0) scale(1.3) rotate(0deg); }
+        }
+        @keyframes horseGallop {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(1deg); }
+        }
+
+        .splash-text {
+            color: transparent;
+            background: linear-gradient(90deg, #ff6b9d, #c084fc, #60a5fa, #ff6b9d);
+            background-size: 300% 100%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            font-size: 42px;
+            font-weight: 700;
+            letter-spacing: 8px;
+            animation: textShine 2s ease-in-out infinite, textFadeIn 0.6s ease-out 0.3s forwards;
+            opacity: 0;
+            text-shadow: 0 0 40px rgba(192, 132, 252, 0.5);
+        }
+        @keyframes textShine {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+        @keyframes textFadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes splashFade {
+            to { opacity: 0; visibility: hidden; pointer-events: none; }
+        }
+
+        /* ====== 主卡片 ====== */
+        .profile-card {
+            position: relative;
+            background: rgba(20, 10, 40, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 28px;
+            padding: 40px;
+            max-width: 520px;
+            width: 100%;
+            z-index: 10;
+            box-shadow: 
+                0 0 60px rgba(192, 132, 252, 0.15),
+                0 25px 50px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            opacity: 0;
+            transform: translateY(40px) scale(0.95);
+            animation: cardReveal 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 1.5s forwards;
+        }
+
+        @keyframes cardReveal {
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* 卡片发光边框 */
+        .profile-card::before {
+            content: '';
+            position: absolute;
+            top: -2px; left: -2px; right: -2px; bottom: -2px;
+            background: linear-gradient(45deg, #ff6b9d, #c084fc, #60a5fa, #34d399, #ff6b9d);
+            background-size: 400% 400%;
+            border-radius: 30px;
+            z-index: -1;
+            animation: borderGlow 8s ease infinite;
+            opacity: 0.6;
+            filter: blur(8px);
+        }
+        @keyframes borderGlow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        /* 光束扫过效果 */
+        .profile-card::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            animation: lightSweep 6s ease-in-out infinite 2s;
+            pointer-events: none;
+        }
+        @keyframes lightSweep {
+            0% { left: -100%; }
+            50% { left: 150%; }
+            100% { left: 150%; }
+        }
+
+        /* ====== 头像区域 ====== */
+        .profile-header { text-align: center; margin-bottom: 35px; }
+
+        .avatar-ring {
+            position: relative;
+            width: 160px; height: 160px;
+            margin: 0 auto 25px;
+        }
+
+        .avatar-ring::before {
+            content: '';
+            position: absolute;
+            top: -4px; left: -4px; right: -4px; bottom: -4px;
+            background: linear-gradient(135deg, #ff6b9d, #c084fc, #60a5fa);
+            border-radius: 50%;
+            animation: ringRotate 4s linear infinite;
+            z-index: -1;
+        }
+        @keyframes ringRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .avatar-ring::after {
+            content: '';
+            position: absolute;
+            top: -8px; left: -8px; right: -8px; bottom: -8px;
+            background: linear-gradient(135deg, #ff6b9d, #c084fc, #60a5fa);
+            border-radius: 50%;
+            animation: ringRotate 4s linear infinite reverse;
+            z-index: -2;
+            opacity: 0.4;
+            filter: blur(8px);
+        }
+
+        .avatar-photo {
+            width: 160px; height: 160px;
+            border-radius: 50%;
+            overflow: hidden;
+            background: #1a1a2e;
+            cursor: pointer;
+            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            box-shadow: 0 0 40px rgba(192, 132, 252, 0.3);
+        }
+        .avatar-photo:hover {
+            transform: scale(1.08);
+        }
+        .avatar-photo img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+        }
+
+        /* 呼吸光晕 */
+        .avatar-glow {
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 200px; height: 200px;
+            transform: translate(-50%, -50%);
+            background: radial-gradient(circle, rgba(192, 132, 252, 0.3) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: glowPulse 3s ease-in-out infinite;
+            z-index: -3;
+        }
+        @keyframes glowPulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
+            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.3; }
+        }
+
+        .profile-name {
+            font-size: 32px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 15px;
+            text-shadow: 0 0 30px rgba(192, 132, 252, 0.5);
+            animation: nameGlow 2s ease-in-out infinite alternate;
+        }
+        @keyframes nameGlow {
+            from { text-shadow: 0 0 20px rgba(192, 132, 252, 0.3); }
+            to { text-shadow: 0 0 40px rgba(255, 107, 157, 0.5), 0 0 60px rgba(192, 132, 252, 0.3); }
+        }
+
+        .tag-container { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; }
+
+        .tag {
+            padding: 8px 20px;
+            background: linear-gradient(135deg, rgba(255, 107, 157, 0.2), rgba(192, 132, 252, 0.2));
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 25px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            animation: tagPop 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+        }
+        .tag:nth-child(1) { animation-delay: 1.7s; }
+        .tag:nth-child(2) { animation-delay: 1.8s; }
+        .tag:nth-child(3) { animation-delay: 1.9s; }
+        @keyframes tagPop {
+            from { opacity: 0; transform: scale(0.5) rotate(-10deg); }
+            to { opacity: 1; transform: scale(1) rotate(0deg); }
+        }
+        .tag:hover {
+            background: linear-gradient(135deg, rgba(255, 107, 157, 0.4), rgba(192, 132, 252, 0.4));
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(192, 132, 252, 0.3);
+        }
+
+        /* ====== 信息区域 ====== */
+        .profile-info { margin: 30px 0; }
+
+        .info-section {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 18px 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            animation: infoSlide 0.6s ease-out backwards;
+        }
+        .info-section:nth-child(1) { animation-delay: 2s; }
+        .info-section:nth-child(2) { animation-delay: 2.1s; }
+        .info-section:nth-child(3) { animation-delay: 2.2s; }
+        .info-section:nth-child(4) { animation-delay: 2.3s; }
+        .info-section:nth-child(5) { animation-delay: 2.4s; }
+        @keyframes infoSlide {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .info-section:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(192, 132, 252, 0.3);
+            transform: translateX(8px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .info-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.85);
+        }
+        .info-row > span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .info-text {
+            color: rgba(255, 255, 255, 0.75);
+            line-height: 1.7;
+            font-size: 15px;
+        }
+        .info-text p { margin: 6px 0; }
+
+        .highlight {
+            color: #c084fc;
+            font-weight: 600;
+            text-shadow: 0 0 15px rgba(192, 132, 252, 0.5);
+        }
+
+        .height-joke {
+            margin-left: 10px;
+            font-size: 12px;
+            background: linear-gradient(90deg, #ff6b9d, #fbbf24, #34d399, #60a5fa);
+            background-size: 300% 100%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: jokeShine 3s linear infinite;
+            font-weight: 600;
+        }
+        @keyframes jokeShine {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 300% 50%; }
+        }
+
+        /* ====== 联系按钮 ====== */
+        .contact-btn {
+            display: block;
+            width: 100%;
+            max-width: 380px;
+            margin: 30px auto 0;
+            padding: 18px;
+            background: linear-gradient(135deg, #ff6b9d, #c084fc);
+            border: none;
+            border-radius: 50px;
+            color: #fff;
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            box-shadow: 0 10px 40px rgba(192, 132, 252, 0.4);
+            animation: btnFloat 3s ease-in-out infinite;
+        }
+        @keyframes btnFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        .contact-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: btnShine 3s ease-in-out infinite;
+        }
+        @keyframes btnShine {
+            0% { left: -100%; }
+            50%, 100% { left: 150%; }
+        }
+        .contact-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 15px 50px rgba(255, 107, 157, 0.5);
+        }
+
+        /* ====== 弹窗 ====== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            animation: modalFade 0.3s ease;
+        }
+        .modal.show { display: flex; }
+        @keyframes modalFade {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-box {
+            background: rgba(30, 15, 50, 0.95);
+            border: 1px solid rgba(192, 132, 252, 0.3);
+            border-radius: 24px;
+            padding: 35px 30px;
+            max-width: 340px;
+            width: 90%;
+            text-align: center;
+            animation: modalPop 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            box-shadow: 0 25px 80px rgba(192, 132, 252, 0.3);
+        }
+        @keyframes modalPop {
+            from { opacity: 0; transform: scale(0.8) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .modal-title {
+            color: #c084fc;
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .contact-info {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 16px;
+            line-height: 2.2;
+            user-select: text;
+        }
+
+        .modal-btn {
+            width: 100%;
+            padding: 14px;
+            margin-top: 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .modal-btn.primary {
+            background: linear-gradient(135deg, #34d399, #10b981);
+            color: #fff;
+        }
+        .modal-btn.secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 10px;
+        }
+        .modal-btn:hover { transform: scale(1.02); }
+
+        /* 图片查看弹窗 */
+        .photo-modal img {
+            max-width: 90vw;
+            max-height: 85vh;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        /* ====== 音频控制 ====== */
+        .audio-toggle {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            width: 55px;
+            height: 55px;
+            background: rgba(30, 15, 50, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(192, 132, 252, 0.3);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 9999;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 25px rgba(192, 132, 252, 0.3);
+        }
+        .audio-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 35px rgba(192, 132, 252, 0.5);
+        }
+        .audio-toggle span {
+            font-size: 24px;
+        }
+
+        /* ====== 浮动粒子 ====== */
+        .particles {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: radial-gradient(circle, rgba(192, 132, 252, 0.8) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: particleFloat 15s ease-in-out infinite;
+        }
+        @keyframes particleFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.6; }
+            25% { transform: translate(100px, -150px) scale(1.5); opacity: 0.3; }
+            50% { transform: translate(-50px, -300px) scale(0.8); opacity: 0.8; }
+            75% { transform: translate(80px, -200px) scale(1.2); opacity: 0.4; }
+        }
+
+        /* ====== 响应式 ====== */
         @media (max-width: 600px) {
-            .contact-button { position: fixed; left: 0; right: 0; bottom: 20px; margin-left: auto; margin-right: auto; width: 90vw; max-width: 400px; font-size: 16px; z-index: 1001; box-shadow: 0 4px 16px rgba(0,0,0,0.15); display: flex; justify-content: center; align-items: center; text-align: center; }
-            .profile-card { padding-bottom: 110px; }
+            .profile-card { padding: 30px 25px 120px; }
+            .profile-name { font-size: 26px; }
+            .avatar-ring, .avatar-photo { width: 130px; height: 130px; }
+            .contact-btn {
+                position: fixed;
+                bottom: 25px;
+                left: 20px;
+                right: 20px;
+                width: auto;
+                max-width: none;
+            }
+            .splash-text { font-size: 28px; letter-spacing: 4px; }
+            .splash-horse { width: 200px; height: 200px; }
         }
     </style>
 </head>
 <body>
-    <!-- 预加载所有资源 -->
-    <link rel="preload" as="image" href="https://rmjun.github.io/liangzai/bm.gif">
-    <link rel="preload" as="image" href="https://rmjun.github.io/liangzai/liangzai.jpg">
-    <link rel="preload" as="audio" href="https://rmjun.github.io/liangzai/bm.mp3">
-    <link rel="preload" as="audio" href="https://cdn.pixabay.com/audio/2022/07/26/audio_124bfae7e2.mp3">
+    <!-- 星空背景 -->
+    <div class="cosmos">
+        <div class="aurora"></div>
+        <div class="star-layer"></div>
+        <div class="star-layer"></div>
+        <div class="star-layer"></div>
+    </div>
 
-    <div class="stars"></div>
+    <!-- 粒子 -->
+    <div class="particles" id="particles"></div>
+
+    <!-- 开屏动画 -->
     <div class="splash-screen" id="splashScreen">
-        <div class="splash-container">
-            <div class="horse">
-                <img src="https://rmjun.github.io/liangzai/bm.gif" alt="白马奔跑" class="horse-gif" id="baimaGif" />
-                <div class="horse-wind"></div>
+        <div class="splash-content">
+            <div class="splash-horse">
+                <img src="https://rmjun.github.io/liangzai/bm.gif" alt="白马">
             </div>
-            <div class="splash-text">寻找真爱...</div>
+            <div class="splash-text">寻找真爱</div>
         </div>
     </div>
 
-    <div class="particles"></div>
-
+    <!-- 主卡片 -->
     <div class="profile-card">
         <div class="profile-header">
-            <div class="profile-photo" id="profilePhoto">
-                <img src="https://rmjun.github.io/liangzai/liangzai.jpg" alt="头像">
-            </div>
-            <div class="photo-modal" id="photoModal">
-                <div class="photo-modal-mask" id="photoModalMask"></div>
-                <img class="photo-modal-img" id="photoModalImg" src="https://rmjun.github.io/liangzai/liangzai.jpg" alt="大头像">
+            <div class="avatar-ring" id="avatarRing">
+                <div class="avatar-glow"></div>
+                <div class="avatar-photo" id="avatarPhoto">
+                    <img src="https://rmjun.github.io/liangzai/liangzai.jpg" alt="头像">
+                </div>
             </div>
             <h1 class="profile-name">亮仔</h1>
-            <div class="profile-tags">
-                <span class="profile-tag">资料员</span>
-                <span class="profile-tag">渣男</span>
-                <span class="profile-tag">吃货</span>
+            <div class="tag-container">
+                <span class="tag">资料员</span>
+                <span class="tag">渣男</span>
+                <span class="tag">吃货</span>
             </div>
         </div>
 
         <div class="profile-info">
-            <div class="info-item info-row">
-                <span>👤 性别：<span class="highlight">男</span></span>
-                <span>🎂 年龄：<span class="highlight">28</span></span>
-                <span>📏 身高：<span class="highlight">178cm</span><span class="height-effect">我也想长两米高</span></span>
-                <span>⚖️ 体重：<span class="highlight">68kg</span></span>
+            <div class="info-section">
+                <div class="info-row">
+                    <span>👤 性别：<span class="highlight">男</span></span>
+                    <span>🎂 年龄：<span class="highlight">28</span></span>
+                    <span>📏 身高：<span class="highlight">178cm</span><span class="height-joke">我也想长两米高</span></span>
+                    <span>⚖️ 体重：<span class="highlight">68kg</span></span>
+                </div>
             </div>
-            <div class="info-item">
-                <p>👨‍💻 职业：<span class="highlight">资深资料员</span></p>
-                <p>💼 工作：每天和领导谈恋爱，偶尔和同事吵架</p>
+
+            <div class="info-section">
+                <div class="info-text">
+                    <p>👨‍💻 职业：<span class="highlight">资深资料员</span></p>
+                    <p>💼 工作：每天和领导谈恋爱，偶尔和同事吵架</p>
+                </div>
             </div>
-            <div class="info-item">
-                <p>🏠 住房：<span class="highlight">有房</span>（虽然是在眉山）</p>
-                <p>🚗 座驾：<span class="highlight">有车</span>（一辆国外产的本田）</p>
+
+            <div class="info-section">
+                <div class="info-text">
+                    <p>🏠 住房：<span class="highlight">有房</span>（虽然是在眉山）</p>
+                    <p>🚗 座驾：<span class="highlight">有车</span>（一辆国外产的本田）</p>
+                </div>
             </div>
-            <div class="info-item">
-                <p>🎮 爱好：</p>
-                <p>- 打游戏（但经常被队友喷）</p>
-                <p>- 看叮当猫（小屁孩渣男）</p>
-                <p>- 吃美食（但不会做饭）</p>
+
+            <div class="info-section">
+                <div class="info-text">
+                    <p>🎮 爱好：</p>
+                    <p>• 打游戏（但经常被队友喷）</p>
+                    <p>• 看叮当猫（小屁孩渣男）</p>
+                    <p>• 吃美食（但不会做饭）</p>
+                </div>
             </div>
-            <div class="info-item">
-                <p>💝 择偶要求：</p>
-                <p>- 能接受我偶尔加班</p>
-                <p>- 不嫌弃我打游戏</p>
-                <p>- 最好会做饭（因为我不会）</p>
+
+            <div class="info-section">
+                <div class="info-text">
+                    <p>💝 择偶要求：</p>
+                    <p>• 能接受我偶尔加班</p>
+                    <p>• 不嫌弃我打游戏</p>
+                    <p>• 最好会做饭（因为我不会）</p>
+                </div>
             </div>
         </div>
 
-        <button class="contact-button" onclick="showContact()">联系我</button>
-        <div class="floating-hearts"></div>
+        <button class="contact-btn" onclick="showContact()">💝 联系我</button>
     </div>
 
-    <div class="audio-control" id="audioControl" onclick="toggleAudio()">🔊</div>
-
-    <!-- 隐藏音频元素 - 使用 Web Audio API 播放 -->
-    <audio id="bgMusic" loop preload="auto">
-        <source src="https://music.163.com/song/media/outer/url?id=1824045033.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="horseHoof" preload="auto">
-        <source src="https://cdn.pixabay.com/audio/2022/07/26/audio_124bfae7e2.mp3" type="audio/mpeg">
-    </audio>
-
-    <div id="contactModal" style="display:none; position:fixed; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.4); z-index:2000; justify-content:center; align-items:center;">
-        <div style="background:#fff; border-radius:12px; padding:24px 18px; min-width:260px; max-width:90vw; box-shadow:0 4px 24px rgba(0,0,0,0.15); text-align:left; position:relative;">
-            <div id="contactText" style="font-size:16px; line-height:2; word-break:break-all; user-select:text;">
+    <!-- 联系弹窗 -->
+    <div class="modal" id="contactModal">
+        <div class="modal-box">
+            <div class="modal-title">📬 联系方式</div>
+            <div class="contact-info" id="contactInfo">
                 微信：coder_xiaoming<br>
                 QQ：123456789<br>
                 邮箱：xiaoming@example.com
             </div>
-            <button onclick="copyContact()" style="margin-top:16px; width:100%; background:#4CAF50; color:#fff; border:none; border-radius:6px; padding:8px 0; font-size:16px; cursor:pointer;">一键复制全部</button>
-            <button onclick="closeContactModal()" style="margin-top:8px; width:100%; background:#eee; color:#333; border:none; border-radius:6px; padding:8px 0; font-size:16px; cursor:pointer;">关闭</button>
+            <button class="modal-btn primary" onclick="copyContact()">📋 一键复制</button>
+            <button class="modal-btn secondary" onclick="closeModal()">关闭</button>
         </div>
     </div>
 
+    <!-- 图片弹窗 -->
+    <div class="modal photo-modal" id="photoModal">
+        <img src="https://rmjun.github.io/liangzai/liangzai.jpg" id="photoImg" onclick="closePhotoModal()">
+    </div>
+
+    <!-- 音频控制 -->
+    <div class="audio-toggle" id="audioToggle" onclick="toggleAudio()">
+        <span id="audioIcon">🔊</span>
+    </div>
+
+    <!-- 音频 -->
+    <audio id="bgMusic" loop preload="auto">
+        <source src="https://music.163.com/song/media/outer/url?id=1824045033.mp3" type="audio/mpeg">
+    </audio>
+
     <script>
-        // ====== 优化后的音频播放系统 ======
+        // ====== 配置 ======
+        const CONFIG = {
+            splashDuration: 1600,
+            bgMusicDelay: 2500,
+            particleCount: 30,
+            meteorInterval: 4000
+        };
+
+        // ====== 音频系统 ======
         let audioContext = null;
-        let hoofBuffer = null;
-        let bgAudioStarted = false;
         let isPlaying = false;
+        let bgMusicStarted = false;
 
-        // 初始化 Web Audio API（用户首次交互时）
-        async function initAudioContext() {
-            if (audioContext) return;
-            try {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                // 预加载马蹄声
-                await loadHoofSound();
-            } catch (e) {
-                console.log('Web Audio API not supported, falling back to HTML5 Audio');
-            }
-        }
-
-        // 加载马蹄声到缓冲区
-        async function loadHoofSound() {
-            if (hoofBuffer || !audioContext) return;
-            try {
-                const response = await fetch('https://cdn.pixabay.com/audio/2022/07/26/audio_124bfae7e2.mp3');
-                const arrayBuffer = await response.arrayBuffer();
-                hoofBuffer = await audioContext.decodeAudioData(arrayBuffer);
-            } catch (e) {
-                console.log('Failed to load hoof sound:', e);
-            }
-        }
-
-        // 播放马蹄声（低延迟）
-        function playHoof() {
-            if (!audioContext || !hoofBuffer) {
-                // 回退到 HTML5 Audio
-                const audio = document.getElementById('horseHoof');
-                audio.currentTime = 0;
-                audio.play().catch(() => {});
-                return;
-            }
-            try {
-                const source = audioContext.createBufferSource();
-                source.buffer = hoofBuffer;
-                source.connect(audioContext.destination);
-                source.start(0);
-            } catch (e) {
-                console.log('Play hoof error:', e);
-            }
-        }
-
-        // 播放背景音乐
-        function playBgMusic() {
+        function initAudio() {
             const bgMusic = document.getElementById('bgMusic');
-            bgMusic.volume = 0.5;
+            bgMusic.volume = 0.4;
+        }
+
+        function playBgMusic() {
+            if (bgMusicStarted) return;
+            const bgMusic = document.getElementById('bgMusic');
             bgMusic.play().then(() => {
                 isPlaying = true;
-                document.getElementById('audioControl').textContent = '🔊';
-            }).catch(e => {
-                console.log('BG music autoplay blocked:', e);
-            });
+                updateAudioIcon();
+                bgMusicStarted = true;
+            }).catch(() => {});
         }
 
-        // 音频控制
         function toggleAudio() {
             const bgMusic = document.getElementById('bgMusic');
-            const ctrl = document.getElementById('audioControl');
             if (isPlaying) {
                 bgMusic.pause();
-                ctrl.textContent = '🔈';
             } else {
-                bgMusic.play();
-                ctrl.textContent = '🔊';
+                bgMusic.play().catch(() => {});
             }
             isPlaying = !isPlaying;
+            updateAudioIcon();
         }
 
-        // ====== 启动开屏动画和声音 ======
-        async function startSplash() {
-            await initAudioContext();
-            
-            // 立即播放马蹄声（低延迟）
-            playHoof();
-            
-            // 循环播放马蹄声直到动画结束
-            const hoofInterval = setInterval(playHoof, 400);
-            
-            // 1.8秒后停止马蹄声并隐藏动画
-            setTimeout(() => {
-                clearInterval(hoofInterval);
-                const splash = document.getElementById('splashScreen');
-                if (splash) splash.style.display = 'none';
-            }, 1800);
+        function updateAudioIcon() {
+            document.getElementById('audioIcon').textContent = isPlaying ? '🔊' : '🔇';
         }
 
-        // ====== 页面加载完成后初始化 ======
-        window.addEventListener('load', () => {
-            // 创建星空和粒子效果
-            createStars();
-            createParticles();
-            
-            // 立即启动开屏动画和声音（无延迟）
-            startSplash();
-            
-            // 用户首次点击时确保背景音乐可播放
-            document.body.addEventListener('click', () => {
-                if (!bgAudioStarted) {
-                    playBgMusic();
-                    bgAudioStarted = true;
-                    isPlaying = true;
-                }
-            }, { once: true });
-            
-            // 3秒后自动开始背景音乐
-            setTimeout(() => {
-                if (!bgAudioStarted) {
-                    playBgMusic();
-                    bgAudioStarted = true;
-                    isPlaying = true;
-                }
-            }, 3000);
-        });
-
-        // 创建星空效果
-        function createStars() {
-            const starsContainer = document.querySelector('.stars');
-            for (let i = 0; i < 200; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                star.style.left = Math.random() * 100 + '%';
-                star.style.top = Math.random() * 100 + '%';
-                star.style.width = (Math.random() * 3 + 1) + 'px';
-                star.style.height = star.style.width;
-                star.style.setProperty('--duration', (Math.random() * 3 + 2) + 's');
-                star.style.animationDelay = Math.random() * 5 + 's';
-                starsContainer.appendChild(star);
-            }
-            for (let i = 0; i < 5; i++) {
-                const shootingStar = document.createElement('div');
-                shootingStar.className = 'shooting-star';
-                shootingStar.style.left = Math.random() * 100 + '%';
-                shootingStar.style.top = Math.random() * 50 + '%';
-                shootingStar.style.setProperty('--duration', (Math.random() * 10 + 10) + 's');
-                shootingStar.style.animationDelay = Math.random() * 10 + 's';
-                starsContainer.appendChild(shootingStar);
-            }
-        }
-
-        // 创建粒子效果
+        // ====== 粒子系统 ======
         function createParticles() {
-            const container = document.querySelector('.particles');
-            for (let i = 0; i < 50; i++) {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < CONFIG.particleCount; i++) {
                 const particle = document.createElement('div');
                 particle.className = 'particle';
                 particle.style.left = Math.random() * 100 + '%';
                 particle.style.top = Math.random() * 100 + '%';
-                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+                const colors = ['rgba(192, 132, 252, 0.6)', 'rgba(255, 107, 157, 0.6)', 'rgba(96, 165, 250, 0.6)'];
+                particle.style.background = `radial-gradient(circle, ${colors[Math.floor(Math.random() * colors.length)]} 0%, transparent 70%)`;
                 container.appendChild(particle);
             }
         }
 
-        // 创建漂浮爱心
-        function createHearts() {
-            const container = document.querySelector('.floating-hearts');
-            const heart = document.createElement('div');
-            heart.className = 'heart';
-            heart.innerHTML = '❤️';
-            heart.style.left = Math.random() * 100 + '%';
-            container.appendChild(heart);
-            setTimeout(() => heart.remove(), 4000);
+        // ====== 流星 ======
+        function createMeteor() {
+            const cosmos = document.querySelector('.cosmos');
+            const meteor = document.createElement('div');
+            meteor.className = 'meteor';
+            meteor.style.top = Math.random() * 50 + '%';
+            meteor.style.left = (50 + Math.random() * 50) + '%';
+            meteor.style.animationDuration = (2 + Math.random() * 2) + 's';
+            cosmos.appendChild(meteor);
+            setTimeout(() => meteor.remove(), 4000);
         }
-        setInterval(createHearts, 300);
 
-        // 联系按钮
+        // ====== 弹窗 ======
         function showContact() {
-            document.getElementById('contactModal').style.display = 'flex';
-            // 播放点击音效
-            new Audio('https://www.soundjay.com/buttons/sounds/button-09.mp3').play().catch(() => {});
+            document.getElementById('contactModal').classList.add('show');
         }
-        function closeContactModal() {
-            document.getElementById('contactModal').style.display = 'none';
+
+        function closeModal() {
+            document.getElementById('contactModal').classList.remove('show');
         }
+
         function copyContact() {
-            const text = document.getElementById('contactText').innerText;
+            const text = document.getElementById('contactInfo').innerText;
             navigator.clipboard.writeText(text).then(() => {
-                alert('联系方式已复制到剪贴板！');
+                alert('✅ 联系方式已复制！');
             });
         }
 
-        // 头像点击放大
-        document.getElementById('profilePhoto').onclick = function() {
-            var imgSrc = document.querySelector('#profilePhoto img').src;
-            document.getElementById('photoModalImg').src = imgSrc;
+        // 头像点击
+        document.getElementById('avatarPhoto').onclick = function() {
             document.getElementById('photoModal').classList.add('show');
         };
-        document.getElementById('photoModalMask').onclick = closePhotoModal;
-        document.getElementById('photoModalImg').onclick = closePhotoModal;
+
         function closePhotoModal() {
             document.getElementById('photoModal').classList.remove('show');
         }
+
+        // 点击遮罩关闭
+        document.getElementById('contactModal').onclick = function(e) {
+            if (e.target === this) closeModal();
+        };
+        document.getElementById('photoModal').onclick = function(e) {
+            if (e.target === this) closePhotoModal();
+        };
+
+        // ====== 初始化 ======
+        window.addEventListener('load', () => {
+            initAudio();
+            createParticles();
+
+            // 定时创建流星
+            setInterval(createMeteor, CONFIG.meteorInterval);
+            setTimeout(createMeteor, 1000);
+
+            // 自动播放背景音乐
+            setTimeout(playBgMusic, CONFIG.bgMusicDelay);
+
+            // 用户交互后播放
+            document.body.addEventListener('click', playBgMusic, { once: true });
+        });
+
+        // 键盘支持
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+                closePhotoModal();
+            }
+        });
     </script>
 </body>
 </html>
