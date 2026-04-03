@@ -727,7 +727,7 @@
             });
         });
 
-        // 列表项点击 - 播放音效 + 显示小提示
+        // 列表项点击 - 播放音效 + 临时替换内容
         document.querySelectorAll('.list li[data-sound]').forEach(li => {
             li.addEventListener('click', function(e) {
                 const soundKey = this.dataset.sound;
@@ -737,72 +737,36 @@
                 // 播放音效
                 playSound(soundKey);
 
-                // 创建小提示气泡
-                showListBubble(this, emoji, tip);
+                // 临时替换内容
+                const originalContent = this.innerHTML;
+                this.innerHTML = `<span style="font-size:16px;margin-right:4px;">${emoji}</span> ${tip}`;
+                this.style.color = 'var(--accent)';
+                this.style.fontWeight = '500';
+                this.style.transform = 'scale(1.02)';
+                this.style.background = 'var(--accent-light)';
+                this.style.padding = '12px 16px';
+                this.style.borderRadius = '8px';
+                this.style.marginLeft = '-8px';
+                this.style.marginRight = '-8px';
+
+                // 3秒后恢复
+                setTimeout(() => {
+                    this.style.transition = 'all .3s ease';
+                    this.innerHTML = originalContent;
+                    this.style.color = '';
+                    this.style.fontWeight = '';
+                    this.style.transform = '';
+                    this.style.background = '';
+                    this.style.padding = '';
+                    this.style.borderRadius = '';
+                    this.style.marginLeft = '';
+                    this.style.marginRight = '';
+                }, 2500);
 
                 // 粒子效果
                 createParticles(e.clientX, e.clientY);
-
-                // 按压反馈
-                this.style.transform = 'scale(0.97)';
-                setTimeout(() => {
-                    this.style.transform = '';
-                }, 150);
             });
         });
-
-        // 列表项小提示气泡
-        function showListBubble(li, emoji, tip) {
-            // 移除已有气泡
-            document.querySelectorAll('.list-bubble').forEach(b => b.remove());
-
-            const bubble = document.createElement('div');
-            bubble.className = 'list-bubble';
-            bubble.innerHTML = `<span class="bubble-emoji">${emoji}</span><span class="bubble-text">${tip}</span>`;
-            bubble.style.cssText = `
-                position: absolute;
-                left: calc(100% + 16px);
-                top: 50%;
-                transform: translateY(-50%);
-                background: linear-gradient(135deg, #fff 0%, #fef2f0 100%);
-                border: 2px solid var(--accent);
-                border-radius: 12px;
-                padding: 10px 16px;
-                font-size: 13px;
-                color: var(--fg);
-                white-space: nowrap;
-                box-shadow: 0 8px 25px rgba(232,93,76,.2);
-                z-index: 100;
-                animation: bubbleIn .3s cubic-bezier(.34,1.56,.64,1);
-                display: flex;
-                align-items: center;
-                gap: 8px;
-            `;
-
-            // 确保父元素是相对定位
-            li.style.position = 'relative';
-            li.appendChild(bubble);
-
-            // 添加动画样式
-            const style = document.createElement('style');
-            style.textContent = `
-                @keyframes bubbleIn {
-                    from { opacity: 0; transform: translateY(-50%) scale(0.7) translateX(-10px); }
-                    to { opacity: 1; transform: translateY(-50%) scale(1) translateX(0); }
-                }
-                .bubble-emoji { font-size: 18px; }
-                .bubble-text { color: var(--muted); }
-            `;
-            document.head.appendChild(style);
-
-            // 3秒后消失
-            setTimeout(() => {
-                bubble.style.opacity = '0';
-                bubble.style.transform = 'translateY(-50%) scale(0.9) translateX(10px)';
-                bubble.style.transition = 'all .2s ease';
-                setTimeout(() => bubble.remove(), 200);
-            }, 2500);
-        }
 
         function closeTagModal() {
             document.getElementById('tagModal').classList.remove('show');
