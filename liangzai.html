@@ -93,6 +93,16 @@
             position: relative;
         }
 
+        /* 头像点击波纹 */
+        .avatar-container.ripple-wrap .ripple {
+            background: rgba(232, 93, 76, 0.3);
+        }
+
+        /* 点击时头像缩放 */
+        .avatar-container:active .avatar {
+            transform: scale(0.95);
+        }
+
         /* 头像图片 */
         .avatar img {
             width: 100%;
@@ -410,9 +420,55 @@
             transition: all .3s cubic-bezier(.34,1.56,.64,1);
             cursor: pointer;
             user-select: none;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid transparent;
         }
-        .info-item:hover { background: var(--accent-light); transform: translateY(-3px) scale(1.02); box-shadow: 0 8px 30px rgba(232,93,76,.15); }
-        .info-item:active { transform: translateY(-1px) scale(.98); }
+        .info-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), #f59e0b);
+            transform: scaleX(0);
+            transition: transform .3s ease;
+        }
+        .info-item:hover { 
+            background: var(--accent-light); 
+            transform: translateY(-4px) scale(1.02); 
+            box-shadow: 0 12px 40px rgba(232,93,76,.2);
+            border-color: rgba(232,93,76,.2);
+        }
+        .info-item:hover::before {
+            transform: scaleX(1);
+        }
+        .info-item:active { 
+            transform: translateY(-2px) scale(.98);
+            transition-duration: .1s;
+        }
+
+        /* 信息卡片点击波纹颜色 */
+        .info-item.ripple-wrap .ripple {
+            background: rgba(232, 93, 76, 0.25);
+        }
+
+        /* 信息卡片图标动画 */
+        .info-item::after {
+            content: '🔊';
+            position: absolute;
+            top: 50%;
+            right: 16px;
+            transform: translateY(-50%) scale(0);
+            font-size: 18px;
+            opacity: 0;
+            transition: all .3s cubic-bezier(.34,1.56,.64,1);
+        }
+        .info-item:hover::after {
+            transform: translateY(-50%) scale(1);
+            opacity: 0.6;
+        }
         .info-label { font-size: 11px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
         .info-value { font-size: 16px; font-weight: 500; }
         .info-value .accent { color: var(--accent); }
@@ -677,11 +733,11 @@
         <!-- 左侧 -->
         <aside class="sidebar">
             <div class="avatar-box">
-                <div class="avatar-container" id="avatar">
+                <div class="avatar-container ripple-wrap" id="avatar">
                     <!-- 外圈装饰 -->
                     <div class="avatar-ring">
                         <div class="avatar-inner">
-                            <div class="avatar">
+                            <div class="avatar bounce">
                                 <img src="https://rmjun.github.io/liangzai/liangzai.jpg" alt="亮仔">
                                 <div class="avatar-overlay"></div>
                             </div>
@@ -974,12 +1030,22 @@
             document.body.style.overflow = '';
         }
 
-        // 信息卡片点击 - 播放音效
+        // 信息卡片点击 - 播放音效 + 高亮反馈
         document.querySelectorAll('.info-item[data-sound]').forEach(item => {
             item.addEventListener('click', function(e) {
                 const soundKey = this.dataset.sound;
                 playSound(soundKey);
                 createParticles(e.clientX, e.clientY);
+
+                // 点击高亮反馈
+                this.style.transform = 'translateY(-2px) scale(0.97)';
+                this.style.boxShadow = '0 4px 20px rgba(232,93,76,.3)';
+                this.style.borderColor = 'var(--accent)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                    this.style.boxShadow = '';
+                    this.style.borderColor = '';
+                }, 300);
             });
         });
 
